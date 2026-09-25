@@ -5,7 +5,10 @@
       "src/**",
       "convex/**",
       "app.json",
+      "babel.config.js",
+      "metro.config.js",
       "package.json",
+      "tailwind.config.js",
       "tsconfig.json",
       "biome.json",
       "!convex/_generated"

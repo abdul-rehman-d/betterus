@@ -1,79 +1,76 @@
+import { useForm } from "@tanstack/react-form";
 import { useMutation } from "convex/react";
-import { useCallback, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { useState } from "react";
+import { Text, View } from "react-native";
 import AppButton from "@/components/ui/app-button";
+import AppTextInput from "@/components/ui/app-text-input";
 import { api } from "@/convex/_generated/api";
 
 export default function TaskForm() {
-  const [task, setTask] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const createTask = useMutation(api.tasks.create);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const addTask = useCallback(async () => {
-    if (!task.length) {
-      setError("please enter something first");
-      return;
-    }
-
-    setError(null);
-
-    setIsSubmitting(true);
-
-    try {
-      await createTask({ text: task });
-      setTask("");
-    } catch (_e) {
-      setError("something went wrong");
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [task, createTask]);
+  const form = useForm({
+    defaultValues: { task: "" },
+    onSubmit: async ({ value, formApi }) => {
+      setSubmitError(null);
+      try {
+        await createTask({ text: value.task.trim() });
+        formApi.reset();
+      } catch {
+        setSubmitError("Could not add the task. Please try again.");
+      }
+    },
+  });
 
   return (
-    <View style={styles.form}>
-      <View style={styles.mainRow}>
-        <TextInput
-          placeholder="Enter task here"
-          style={styles.input}
-          enterKeyHint="done"
-          value={task}
-          onChangeText={setTask}
-          onSubmitEditing={addTask}
-        />
-        <AppButton onPress={addTask} disabled={isSubmitting}>
-          Add
-        </AppButton>
-      </View>
-      {error ? <Text style={styles.errorText}>{error}</Text> : <View style={styles.errorSpacer} />}
+    <View className="mb-3 gap-2">
+      <form.Field
+        name="task"
+        validators={{
+          onChange: ({ value }) => (value.trim() ? undefined : "Enter a task first."),
+        }}
+      >
+        {(field) => (
+          <View className="gap-2">
+            <View className="flex-row items-stretch gap-2">
+              <AppTextInput
+                accessibilityLabel="New task"
+                className="flex-1"
+                enterKeyHint="done"
+                placeholder="What needs doing?"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChangeText={field.handleChange}
+                onSubmitEditing={() => void form.handleSubmit()}
+              />
+              <form.Subscribe
+                selector={(state) => [state.canSubmit, state.isSubmitting, state.isPristine]}
+              >
+                {([canSubmit, isSubmitting, isPristine]) => (
+                  <AppButton
+                    icon="add-circle-outline"
+                    label="Add"
+                    loading={isSubmitting}
+                    disabled={!canSubmit || isPristine}
+                    onPress={() => void form.handleSubmit()}
+                  />
+                )}
+              </form.Subscribe>
+            </View>
+            {!field.state.meta.isValid ? (
+              <Text accessibilityRole="alert" className="px-1 text-xs text-red-600">
+                {field.state.meta.errors.join(", ")}
+              </Text>
+            ) : null}
+          </View>
+        )}
+      </form.Field>
+      {submitError ? (
+        <Text accessibilityRole="alert" className="px-1 text-xs text-red-600">
+          {submitError}
+        </Text>
+      ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  form: {
-    gap: 2,
-  },
-  mainRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  input: {
-    flex: 1,
-    alignSelf: "stretch",
-    paddingHorizontal: 8,
-    borderWidth: 1,
-    borderColor: "#000",
-    borderRadius: 8,
-  },
-  errorText: {
-    marginHorizontal: 10,
-    fontSize: 10,
-    color: "#ff0000",
-  },
-  errorSpacer: {
-    height: 10,
-  },
-});

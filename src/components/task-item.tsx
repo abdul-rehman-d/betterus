@@ -1,6 +1,8 @@
 import { useMutation } from "convex/react";
-import { useCallback } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import { Text, View } from "react-native";
+import AppButton from "@/components/ui/app-button";
+import AppCheckbox from "@/components/ui/app-checkbox";
 import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 
@@ -11,43 +13,60 @@ type TaskItemProps = {
 export default function TaskItem({ task }: TaskItemProps) {
   const updateTask = useMutation(api.tasks.update);
   const removeTask = useMutation(api.tasks.remove);
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const onUpdateTask = useCallback(async () => {
+  async function toggleTask(is_completed: boolean) {
+    setError(null);
     try {
-      await updateTask({ id: task._id, is_completed: !task.is_completed });
-    } catch (_e) {
-    } finally {
+      await updateTask({ id: task._id, is_completed });
+    } catch {
+      setError("Could not update this task.");
     }
-  }, [task, updateTask]);
+  }
 
-  const onRemoveTask = useCallback(async () => {
+  async function deleteTask() {
+    setError(null);
+    setIsRemoving(true);
     try {
       await removeTask({ id: task._id });
-    } catch (_e) {
+    } catch {
+      setError("Could not delete this task.");
     } finally {
+      setIsRemoving(false);
     }
-  }, [task._id, removeTask]);
+  }
 
   return (
-    <View style={styles.container}>
-      <Pressable onPress={onUpdateTask}>
-        <Text>{task.is_completed ? "✅" : "⬜"}</Text>
-      </Pressable>
-      <Text style={styles.text}>{task.text}</Text>
-      <Pressable onPress={onRemoveTask}>
-        <Text>{"🗑️"}</Text>
-      </Pressable>
+    <View className="gap-1 rounded-2xl border border-stone-200 bg-white p-4">
+      <View className="flex-row items-center gap-3">
+        <AppCheckbox
+          accessibilityLabel={`Mark ${task.text} as ${task.is_completed ? "incomplete" : "complete"}`}
+          value={task.is_completed}
+          onValueChange={(value) => void toggleTask(value)}
+        />
+        <Text
+          className={`flex-1 text-base ${
+            task.is_completed ? "text-stone-400 line-through" : "text-stone-900"
+          }`}
+        >
+          {task.text}
+        </Text>
+        <AppButton
+          icon="trash-outline"
+          iconOnly
+          label="Delete"
+          variant="ghost"
+          loading={isRemoving}
+          accessibilityLabel={`Delete ${task.text}`}
+          onPress={() => void deleteTask()}
+        />
+      </View>
+      {error ? (
+        <Text accessibilityRole="alert" className="pl-11 text-xs text-red-600">
+          {error}
+        </Text>
+      ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  text: {
-    flex: 1,
-  },
-});
