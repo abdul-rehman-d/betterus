@@ -35,15 +35,7 @@ export default function AppScreen({
   );
   const content =
     scroll && inSheet ? (
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={[styles.scrollContent, bottomInset && styles.scrollBottomInset]}
-        keyboardShouldPersistTaps="handled"
-        nestedScrollEnabled
-        showsVerticalScrollIndicator={false}
-      >
-        {body}
-      </ScrollView>
+      <View style={styles.sheetContent}>{body}</View>
     ) : scroll ? (
       <ScrollView
         className="flex-1"
@@ -70,7 +62,5 @@ export default function AppScreen({
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1 },
-  scrollBottomInset: { paddingBottom: 40 },
-  scrollContent: { flexGrow: 1, gap: 20, paddingHorizontal: 20, paddingVertical: 20 },
+  sheetContent: { gap: 20 },
 });

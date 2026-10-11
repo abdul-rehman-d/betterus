@@ -45,7 +45,7 @@ export default function MeasurementsModal() {
     }),
   ) as Record<MeasurementKey, string>;
   return (
-    <AppBottomSheet snapPoints={["92%"]}>
+    <AppBottomSheet snapPoints={["92%"]} enablePanDownToClose={false}>
       <MeasurementsForm
         userId={userId}
         date={date}

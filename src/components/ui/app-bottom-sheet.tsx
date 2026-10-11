@@ -1,7 +1,7 @@
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
-  BottomSheetView,
+  BottomSheetScrollView,
   type BottomSheetBackdropProps,
 } from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
@@ -10,12 +10,17 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { colors } from "@/lib/constants";
 
-type Props = PropsWithChildren<{ onDismiss?: () => void; snapPoints?: readonly string[] }>;
+type Props = PropsWithChildren<{
+  onDismiss?: () => void;
+  snapPoints?: readonly string[];
+  enablePanDownToClose?: boolean;
+}>;
 
 export default function AppBottomSheet({
   children,
   onDismiss = () => router.back(),
   snapPoints = ["72%", "94%"],
+  enablePanDownToClose = true,
 }: Props) {
   const sheetRef = useRef<BottomSheetModal>(null);
   const points = useMemo(() => [...snapPoints], [snapPoints]);
@@ -44,8 +49,7 @@ export default function AppBottomSheet({
         index={0}
         snapPoints={points}
         backdropComponent={renderBackdrop}
-        enableContentPanningGesture={false}
-        enablePanDownToClose
+        enablePanDownToClose={enablePanDownToClose}
         enableDynamicSizing={false}
         keyboardBehavior="interactive"
         keyboardBlurBehavior="restore"
@@ -54,7 +58,13 @@ export default function AppBottomSheet({
         handleIndicatorStyle={styles.handle}
         onDismiss={onDismiss}
       >
-        <BottomSheetView style={styles.content}>{children}</BottomSheetView>
+        <BottomSheetScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {children}
+        </BottomSheetScrollView>
       </BottomSheetModal>
     </View>
   );
@@ -62,7 +72,7 @@ export default function AppBottomSheet({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { flex: 1, overflow: "hidden" },
+  content: { flexGrow: 1, paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 },
   background: { backgroundColor: colors.background, borderRadius: 30 },
   handle: { backgroundColor: colors.outline, width: 44 },
 });
