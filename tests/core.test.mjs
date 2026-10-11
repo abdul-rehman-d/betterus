@@ -7,10 +7,12 @@ import {
   convertMeasurement,
   convertWeight,
   normalizeUsername,
+  roundDisplay,
   todayInTimeZone,
 } from "../convex/lib.ts";
 import { buildChartGeometry } from "../src/lib/chart.ts";
 import { calendarGrid, isSunday } from "../src/lib/dates.ts";
+import { formatBodyMetric, roundBodyMetric } from "../src/lib/numbers.ts";
 
 test("normalizes and validates usernames", () => {
   assert.equal(normalizeUsername("  Better_User  "), "better_user");
@@ -26,6 +28,12 @@ test("converts units without drift in stored values", () => {
     Math.abs(convertMeasurement(convertMeasurement(cm, "cm", "in"), "in", "cm") - cm) <
       1e-9,
   );
+});
+
+test("rounds and formats body metrics to two decimal places", () => {
+  assert.equal(roundDisplay(72.456), 72.46);
+  assert.equal(roundBodyMetric(72.454), 72.45);
+  assert.equal(formatBodyMetric(72.5), "72.50");
 });
 
 test("validates logical dates and Sundays", () => {

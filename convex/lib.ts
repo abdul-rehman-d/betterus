@@ -87,7 +87,7 @@ export function convertMeasurement(value: number, from: MeasurementUnit, to: Mea
 }
 
 export function roundDisplay(value: number) {
-  return Math.round(value * 10) / 10;
+  return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
 export async function assertUser(ctx: MutationCtx, userId: Id<"users">) {

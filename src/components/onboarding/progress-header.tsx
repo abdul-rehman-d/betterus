@@ -6,13 +6,15 @@ import AppText from "@/components/ui/app-text";
 export default function ProgressHeader({ step }: { step: number }) {
   return (
     <View className="mb-4 flex-row items-center gap-4">
-      <Pressable
-        accessibilityLabel="Go back"
-        className="h-12 w-12 items-center justify-center rounded-full bg-petal-soft"
-        onPress={() => (step > 1 ? router.back() : router.replace("/"))}
-      >
-        <MaterialCommunityIcons name="arrow-left" size={25} color={colors.plum} />
-      </Pressable>
+      {step > 1 ? (
+        <Pressable
+          accessibilityLabel="Go back"
+          className="h-12 w-12 items-center justify-center rounded-full bg-petal-soft"
+          onPress={() => router.back()}
+        >
+          <MaterialCommunityIcons name="arrow-left" size={25} color={colors.plum} />
+        </Pressable>
+      ) : null}
       <View className="flex-1 flex-row gap-2">
         {[1, 2, 3, 4].map((n) => (
           <View

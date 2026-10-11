@@ -3,6 +3,7 @@ import { View } from "react-native";
 import Svg, { Circle, Line, Path } from "react-native-svg";
 import { colors } from "@/lib/constants";
 import { buildChartGeometry } from "@/lib/chart";
+import { formatBodyMetric } from "@/lib/numbers";
 
 export default function LineChart({ values }: { values: Array<{ date: string; value: number }> }) {
   const [width, setWidth] = useState(0);
@@ -13,7 +14,7 @@ export default function LineChart({ values }: { values: Array<{ date: string; va
   return (
     <View
       accessible
-      accessibilityLabel={`Chart from ${values[0].value} to ${values.at(-1)?.value}`}
+      accessibilityLabel={`Chart from ${formatBodyMetric(values[0].value)} to ${formatBodyMetric(values.at(-1)?.value ?? values[0].value)}`}
       className="mt-2 h-[150px]"
       onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
     >

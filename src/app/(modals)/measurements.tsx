@@ -1,9 +1,10 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery } from "convex/react";
-import { router, useLocalSearchParams } from "expo-router";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
 import AppButton from "@/components/ui/app-button";
+import AppBottomSheet from "@/components/ui/app-bottom-sheet";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
 import AppTextInput from "@/components/ui/app-text-input";
@@ -13,6 +14,7 @@ import { InlineError, LoadingState } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
 import { measurementLabel, type MeasurementKey, type MeasurementUnit } from "@/lib/constants";
 import { formatDate, isSunday } from "@/lib/dates";
+import { formatBodyMetric } from "@/lib/numbers";
 import { useSession } from "@/providers/session-provider";
 
 export default function MeasurementsModal() {
@@ -20,28 +22,38 @@ export default function MeasurementsModal() {
   const { userId } = useSession();
   const user = useQuery(api.users.get, userId ? { userId } : "skip");
   const record = useQuery(api.dailyRecords.getByDate, userId && date ? { userId, date } : "skip");
-  if (!userId || !date || !user || record === undefined) return <LoadingState />;
+  if (!date) return <Redirect href="/(tabs)" />;
+  if (!userId || !date || !user || record === undefined)
+    return (
+      <AppBottomSheet snapPoints={["50%", "72%"]}>
+        <LoadingState />
+      </AppBottomSheet>
+    );
   if (!isSunday(date))
     return (
-      <AppScreen>
-        <PageHeader close title="Measurements" />
-        <AppText variant="subtitle">Choose a Sunday to log measurements.</AppText>
-      </AppScreen>
+      <AppBottomSheet snapPoints={["42%"]}>
+        <AppScreen inSheet>
+          <PageHeader close title="Measurements" />
+          <AppText variant="subtitle">Choose a Sunday to log measurements.</AppText>
+        </AppScreen>
+      </AppBottomSheet>
     );
   const values = Object.fromEntries(
-    user.measurementPreferences.map((key) => [
-      key,
-      record?.measurements.find((item) => item.key === key)?.value.toString() ?? "",
-    ]),
+    user.measurementPreferences.map((key) => {
+      const value = record?.measurements.find((item) => item.key === key)?.value;
+      return [key, value === undefined ? "" : formatBodyMetric(value)];
+    }),
   ) as Record<MeasurementKey, string>;
   return (
-    <MeasurementsForm
-      userId={userId}
-      date={date}
-      values={values}
-      unit={user.measurementUnit}
-      keys={user.measurementPreferences}
-    />
+    <AppBottomSheet snapPoints={["92%"]}>
+      <MeasurementsForm
+        userId={userId}
+        date={date}
+        values={values}
+        unit={user.measurementUnit}
+        keys={user.measurementPreferences}
+      />
+    </AppBottomSheet>
   );
 }
 function MeasurementsForm({
@@ -76,7 +88,7 @@ function MeasurementsForm({
     },
   });
   return (
-    <AppScreen>
+    <AppScreen inSheet>
       <PageHeader close title="Sunday measurements" />
       <AppText>{formatDate(date)}</AppText>
       <form.Field name="unit">
@@ -100,6 +112,7 @@ function MeasurementsForm({
               return (
                 <AppTextInput
                   key={key}
+                  inSheet
                   keyboardType="decimal-pad"
                   label={measurementLabel(key)}
                   suffix={form.getFieldValue("unit")}

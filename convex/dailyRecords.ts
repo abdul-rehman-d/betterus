@@ -122,7 +122,7 @@ export const setWeight = mutation({
     await assertUser(ctx, args.userId);
     assertPositiveFinite(args.value);
     await upsertDailyRecord(ctx, args.userId, args.date, (record) => ({
-      weight: { value: args.value, unit: args.unit, recordedAt: Date.now() },
+      weight: { value: roundDisplay(args.value), unit: args.unit, recordedAt: Date.now() },
       measurements: record?.measurements,
     }));
     return null;
@@ -159,7 +159,11 @@ export const setMeasurements = mutation({
     for (const item of args.measurements) assertPositiveFinite(item.value);
     await upsertDailyRecord(ctx, args.userId, args.date, (record) => ({
       weight: record?.weight,
-      measurements: args.measurements.map((item) => ({ ...item, recordedAt: Date.now() })),
+      measurements: args.measurements.map((item) => ({
+        ...item,
+        value: roundDisplay(item.value),
+        recordedAt: Date.now(),
+      })),
     }));
     return null;
   },

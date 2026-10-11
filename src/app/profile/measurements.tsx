@@ -50,24 +50,27 @@ function MeasurementForm({
       >
         {(field) => (
           <View className="gap-3">
-            <AppText>{field.state.value.length} selected</AppText>
-            {measurements.map(([key, label]) => {
-              const active = field.state.value.includes(key);
-              return (
-                <SelectionCard
-                  key={key}
-                  label={label}
-                  selected={active}
-                  onPress={() =>
-                    field.handleChange(
-                      active
-                        ? field.state.value.filter((item) => item !== key)
-                        : [...field.state.value, key],
-                    )
-                  }
-                />
-              );
-            })}
+            <AppText variant="label">{field.state.value.length} selected</AppText>
+            <View className="flex-row flex-wrap gap-3">
+              {measurements.map(([key, label]) => {
+                const active = field.state.value.includes(key);
+                return (
+                  <View key={key} className="w-[48%]">
+                    <SelectionCard
+                      label={label}
+                      selected={active}
+                      onPress={() =>
+                        field.handleChange(
+                          active
+                            ? field.state.value.filter((item) => item !== key)
+                            : [...field.state.value, key],
+                        )
+                      }
+                    />
+                  </View>
+                );
+              })}
+            </View>
             {!field.state.meta.isValid ? (
               <AppText className="text-danger">{field.state.meta.errors.join(", ")}</AppText>
             ) : null}

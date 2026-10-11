@@ -1,8 +1,9 @@
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery } from "convex/react";
-import { router, useLocalSearchParams } from "expo-router";
+import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import AppButton from "@/components/ui/app-button";
+import AppBottomSheet from "@/components/ui/app-bottom-sheet";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
 import AppTextInput from "@/components/ui/app-text-input";
@@ -12,6 +13,7 @@ import { InlineError, LoadingState } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
 import type { WeightUnit } from "@/lib/constants";
 import { formatDate } from "@/lib/dates";
+import { formatBodyMetric } from "@/lib/numbers";
 import { useSession } from "@/providers/session-provider";
 
 export default function WeightModal() {
@@ -19,15 +21,23 @@ export default function WeightModal() {
   const { userId } = useSession();
   const user = useQuery(api.users.get, userId ? { userId } : "skip");
   const record = useQuery(api.dailyRecords.getByDate, userId && date ? { userId, date } : "skip");
-  if (!userId || !date || !user || record === undefined) return <LoadingState />;
+  if (!date) return <Redirect href="/(tabs)" />;
+  if (!userId || !date || !user || record === undefined)
+    return (
+      <AppBottomSheet snapPoints={["50%", "72%"]}>
+        <LoadingState />
+      </AppBottomSheet>
+    );
   return (
-    <WeightForm
-      userId={userId}
-      date={date}
-      value={record?.weight?.value}
-      unit={user.weightUnit}
-      hasWeight={Boolean(record?.weight)}
-    />
+    <AppBottomSheet snapPoints={["62%", "90%"]}>
+      <WeightForm
+        userId={userId}
+        date={date}
+        value={record?.weight?.value}
+        unit={user.weightUnit}
+        hasWeight={Boolean(record?.weight)}
+      />
+    </AppBottomSheet>
   );
 }
 function WeightForm({
@@ -47,7 +57,7 @@ function WeightForm({
   const remove = useMutation(api.dailyRecords.removeWeight);
   const [error, setError] = useState<string | null>(null);
   const form = useForm({
-    defaultValues: { value: value?.toString() ?? "", unit },
+    defaultValues: { value: value === undefined ? "" : formatBodyMetric(value), unit },
     onSubmit: async ({ value: next }) => {
       setError(null);
       try {
@@ -68,7 +78,7 @@ function WeightForm({
     }
   };
   return (
-    <AppScreen>
+    <AppScreen inSheet>
       <PageHeader close title={hasWeight ? "Edit weight" : "Add weight"} />
       <AppText>{formatDate(date)}</AppText>
       <form.Field
@@ -83,6 +93,7 @@ function WeightForm({
         {(field) => (
           <AppTextInput
             autoFocus
+            inSheet
             keyboardType="decimal-pad"
             label="Weight"
             suffix={form.getFieldValue("unit")}

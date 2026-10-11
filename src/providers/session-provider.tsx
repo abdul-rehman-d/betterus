@@ -10,6 +10,10 @@ import {
 import type { Id } from "@/convex/_generated/dataModel";
 
 const SESSION_KEY = "betterus.user-id.v1";
+
+export async function clearStoredSession() {
+  await SecureStore.deleteItemAsync(SESSION_KEY);
+}
 type Session = {
   loading: boolean;
   userId: Id<"users"> | null;
@@ -44,7 +48,7 @@ export function SessionProvider({
         setCurrentUserId(id);
       },
       clearUserId: async () => {
-        await SecureStore.deleteItemAsync(SESSION_KEY);
+        await clearStoredSession();
         setCurrentUserId(null);
       },
     }),

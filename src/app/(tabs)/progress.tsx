@@ -10,6 +10,7 @@ import { EmptyState, LoadingState } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
 import { measurementLabel, type MeasurementKey } from "@/lib/constants";
 import { startOfRange, toIsoDate } from "@/lib/dates";
+import { formatBodyMetric, roundBodyMetric } from "@/lib/numbers";
 import { useSession } from "@/providers/session-provider";
 
 type Range = "7" | "30" | "90" | "365";
@@ -76,7 +77,7 @@ function ChartCard({
 }) {
   const first = values[0];
   const latest = values.at(-1) ?? first;
-  const change = Math.round((latest.value - first.value) * 10) / 10;
+  const change = roundBodyMetric(latest.value - first.value);
   return (
     <AppCard>
       <View className="flex-row items-end justify-between">
@@ -85,13 +86,13 @@ function ChartCard({
             {title}
           </AppText>
           <View className="flex-row items-end gap-1">
-            <AppText variant="metric">{latest.value}</AppText>
+            <AppText variant="metric">{formatBodyMetric(latest.value)}</AppText>
             <AppText className="mb-1">{latest.unit}</AppText>
           </View>
         </View>
         <AppText className={change > 0 ? "text-berry" : "text-success"}>
           {change > 0 ? "+" : ""}
-          {change} {latest.unit}
+          {formatBodyMetric(change)} {latest.unit}
         </AppText>
       </View>
       <LineChart values={values} />

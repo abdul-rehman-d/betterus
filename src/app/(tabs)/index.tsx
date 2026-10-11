@@ -9,7 +9,8 @@ import AppText from "@/components/ui/app-text";
 import { LoadingState } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
 import { colors } from "@/lib/constants";
-import { addDays, formatDate, isSunday, toIsoDate, weekAround } from "@/lib/dates";
+import { formatDate, isSunday, toIsoDate } from "@/lib/dates";
+import { formatBodyMetric } from "@/lib/numbers";
 import { useSession } from "@/providers/session-provider";
 
 export default function Home() {
@@ -17,19 +18,11 @@ export default function Home() {
   const params = useLocalSearchParams<{ date?: string }>();
   const today = toIsoDate(new Date());
   const selectedDate = params.date && params.date <= today ? params.date : today;
-  const user = useQuery(api.users.get, userId ? { userId } : "skip");
   const record = useQuery(
     api.dailyRecords.getByDate,
     userId ? { userId, date: selectedDate } : "skip",
   );
-  const week = weekAround(selectedDate);
-  const weekData = useQuery(
-    api.dailyRecords.listRange,
-    userId ? { userId, startDate: week[0], endDate: week[6] > today ? today : week[6] } : "skip",
-  );
-
-  if (!userId || user === undefined || record === undefined || weekData === undefined)
-    return <LoadingState />;
+  if (!userId || record === undefined) return <LoadingState />;
 
   return (
     <AppScreen bottomInset={false}>
@@ -65,7 +58,7 @@ export default function Home() {
             <AppText variant="label">Weight</AppText>
             {record?.weight ? (
               <View className="flex-row items-end gap-1">
-                <AppText variant="metric">{record.weight.value}</AppText>
+                <AppText variant="metric">{formatBodyMetric(record.weight.value)}</AppText>
                 <AppText className="mb-1">{record.weight.unit}</AppText>
               </View>
             ) : (
