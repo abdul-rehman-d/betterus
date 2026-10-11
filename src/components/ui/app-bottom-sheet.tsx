@@ -10,9 +10,13 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { colors } from "@/lib/constants";
 
-type Props = PropsWithChildren<{ snapPoints?: readonly string[] }>;
+type Props = PropsWithChildren<{ onDismiss?: () => void; snapPoints?: readonly string[] }>;
 
-export default function AppBottomSheet({ children, snapPoints = ["72%", "94%"] }: Props) {
+export default function AppBottomSheet({
+  children,
+  onDismiss = () => router.back(),
+  snapPoints = ["72%", "94%"],
+}: Props) {
   const sheetRef = useRef<BottomSheetModal>(null);
   const points = useMemo(() => [...snapPoints], [snapPoints]);
 
@@ -48,7 +52,7 @@ export default function AppBottomSheet({ children, snapPoints = ["72%", "94%"] }
         android_keyboardInputMode="adjustResize"
         backgroundStyle={styles.background}
         handleIndicatorStyle={styles.handle}
-        onDismiss={() => router.back()}
+        onDismiss={onDismiss}
       >
         <BottomSheetView style={styles.content}>{children}</BottomSheetView>
       </BottomSheetModal>

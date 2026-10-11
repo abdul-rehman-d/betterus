@@ -1,7 +1,8 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useBottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "convex/react";
 import { Redirect, router, useLocalSearchParams } from "expo-router";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Pressable, View } from "react-native";
 import AppButton from "@/components/ui/app-button";
 import AppBottomSheet from "@/components/ui/app-bottom-sheet";
@@ -17,8 +18,18 @@ export default function DateModal() {
   const params = useLocalSearchParams<{ date: string }>();
   const today = toIsoDate(new Date());
   const [month, setMonth] = useState(`${(params.date || today).slice(0, 7)}-01`);
+  const selectedDateRef = useRef<string | null>(null);
+  const { dismiss } = useBottomSheetModal();
   const { userId } = useSession();
   const grid = useMemo(() => calendarGrid(month), [month]);
+  const handleDismiss = useCallback(() => {
+    const date = selectedDateRef.current;
+    if (date) {
+      router.dismissTo({ pathname: "/(tabs)", params: { date } });
+      return;
+    }
+    router.back();
+  }, []);
   const records = useQuery(
     api.dailyRecords.listRange,
     userId
@@ -32,9 +43,12 @@ export default function DateModal() {
     date.setMonth(date.getMonth() + amount);
     setMonth(toIsoDate(new Date(date.getFullYear(), date.getMonth(), 1, 12)));
   };
-  const select = (date: string) => router.replace({ pathname: "/(tabs)", params: { date } });
+  const select = (date: string) => {
+    selectedDateRef.current = date;
+    dismiss();
+  };
   return (
-    <AppBottomSheet snapPoints={["78%", "94%"]}>
+    <AppBottomSheet snapPoints={["78%", "94%"]} onDismiss={handleDismiss}>
       <AppScreen inSheet>
         <PageHeader close title="Change date" />
         <View className="flex-row items-center justify-between">
