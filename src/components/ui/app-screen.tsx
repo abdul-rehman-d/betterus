@@ -1,4 +1,12 @@
-import type { PropsWithChildren } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import {
+  Children,
+  isValidElement,
+  type PropsWithChildren,
+  type ReactNode,
+  useEffect,
+  useState,
+} from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -7,9 +15,12 @@ import {
   View,
   type ViewProps,
 } from "react-native";
+import Animated, { FadeInDown, useReducedMotion } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useNetworkStatus from "@/hooks/use-network-status";
+import { colors } from "@/lib/constants";
 import AppText from "./app-text";
+
 type Props = PropsWithChildren<ViewProps> & {
   bottomInset?: boolean;
   inSheet?: boolean;
@@ -23,14 +34,26 @@ export default function AppScreen({
   inSheet = false,
 }: Props) {
   const { isOffline } = useNetworkStatus();
+  const reduceMotion = useReducedMotion();
   const body = (
     <>
       {isOffline ? (
-        <AppText className="rounded-2xl bg-petal px-4 py-3 text-center text-berry">
-          You’re offline. Saved data stays visible; edits need a connection.
-        </AppText>
+        <View className="flex-row items-center rounded-2xl border border-outline-soft bg-white px-4 py-3">
+          <View className="mr-3 h-2.5 w-2.5 rounded-full bg-gold" />
+          <AppText className="flex-1">
+            You’re offline. Saved data stays visible; edits need a connection.
+          </AppText>
+        </View>
       ) : null}
-      {children}
+      {Children.toArray(children).map((child, index) => (
+        <EntranceSection
+          key={isValidElement(child) ? child.key : String(child)}
+          index={index}
+          reduceMotion={reduceMotion}
+        >
+          {child}
+        </EntranceSection>
+      ))}
     </>
   );
   const content =
@@ -39,18 +62,25 @@ export default function AppScreen({
     ) : scroll ? (
       <ScrollView
         className="flex-1"
-        contentContainerClassName={`grow gap-5 px-5 py-5 ${bottomInset ? "pb-10" : ""}`}
+        contentContainerClassName={`grow gap-6 px-5 pt-5 ${bottomInset ? "pb-12" : "pb-32"}`}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
         {body}
       </ScrollView>
     ) : (
-      <View className="flex-1 px-5 py-5">{body}</View>
+      <View className="flex-1 gap-6 px-5 py-5">{body}</View>
     );
   if (inSheet) return content;
   return (
     <SafeAreaView className={`flex-1 bg-blush ${className ?? ""}`} edges={["top", "left", "right"]}>
+      <LinearGradient
+        colors={[colors.background, colors.backgroundDeep, colors.background]}
+        locations={[0, 0.58, 1]}
+        style={StyleSheet.absoluteFill}
+      />
+      <View pointerEvents="none" style={[styles.glow, styles.glowTop]} />
+      <View pointerEvents="none" style={[styles.glow, styles.glowBottom]} />
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -61,6 +91,57 @@ export default function AppScreen({
   );
 }
 
+function EntranceSection({
+  children,
+  index,
+  reduceMotion,
+}: {
+  children: ReactNode;
+  index: number;
+  reduceMotion: boolean;
+}) {
+  const delay = Math.min(index, 6) * 55;
+  const [compositeOnAndroid, setCompositeOnAndroid] = useState(
+    Platform.OS === "android" && !reduceMotion,
+  );
+
+  useEffect(() => {
+    if (Platform.OS !== "android" || reduceMotion) {
+      setCompositeOnAndroid(false);
+      return;
+    }
+    setCompositeOnAndroid(true);
+    const timeout = setTimeout(() => setCompositeOnAndroid(false), delay + 500);
+    return () => clearTimeout(timeout);
+  }, [delay, reduceMotion]);
+
+  return (
+    <Animated.View
+      collapsable={false}
+      entering={
+        reduceMotion
+          ? undefined
+          : FadeInDown.delay(delay)
+              .duration(420)
+              .withInitialValues({ opacity: 0, transform: [{ translateY: 12 }] })
+      }
+      needsOffscreenAlphaCompositing={compositeOnAndroid}
+      renderToHardwareTextureAndroid={compositeOnAndroid}
+    >
+      {children}
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
   sheetContent: { gap: 20 },
+  glow: {
+    position: "absolute",
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: "rgba(255, 215, 228, 0.42)",
+  },
+  glowTop: { top: -130, right: -90 },
+  glowBottom: { bottom: 80, left: -170, opacity: 0.45 },
 });

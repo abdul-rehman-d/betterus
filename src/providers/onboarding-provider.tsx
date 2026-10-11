@@ -12,7 +12,7 @@ export type OnboardingDraft = {
 const initial: OnboardingDraft = {
   username: "",
   name: "",
-  gender: "prefer_not_to_say",
+  gender: "man",
   weightUnit: "kg",
   measurementUnit: "cm",
   measurementPreferences: ["shoulders", "chest_bust", "waist", "hips_glutes", "biceps_relaxed"],

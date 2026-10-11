@@ -8,14 +8,20 @@ import AppButton from "@/components/ui/app-button";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
 import PageHeader from "@/components/ui/page-header";
-import { InlineError, LoadingState } from "@/components/ui/states";
+import { ContentLoading, InlineError } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
-import { measurements, type MeasurementKey } from "@/lib/constants";
+import { type MeasurementKey, measurements } from "@/lib/constants";
 import { useSession } from "@/providers/session-provider";
 export default function EditMeasurements() {
   const { userId } = useSession();
   const user = useQuery(api.users.get, userId ? { userId } : "skip");
-  if (!userId || !user) return <LoadingState />;
+  if (!userId || !user)
+    return (
+      <AppScreen>
+        <PageHeader title="Tracked measurements" />
+        <ContentLoading label="Loading measurement preferences" variant="form" />
+      </AppScreen>
+    );
   return <MeasurementForm userId={userId} selected={user.measurementPreferences} />;
 }
 function MeasurementForm({

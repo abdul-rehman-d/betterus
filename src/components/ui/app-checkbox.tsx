@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { Pressable, type PressableProps } from "react-native";
+import type { PressableProps } from "react-native";
+import PressableScale from "./pressable-scale";
 
 type AppCheckboxProps = Omit<PressableProps, "onPress"> & {
   value: boolean;
@@ -14,12 +15,13 @@ export default function AppCheckbox({
   ...props
 }: AppCheckboxProps) {
   return (
-    <Pressable
+    <PressableScale
       accessibilityRole="checkbox"
       accessibilityState={{ checked: value, disabled: Boolean(disabled) }}
       className={`h-8 w-8 items-center justify-center ${className ?? ""}`}
       disabled={disabled}
       hitSlop={8}
+      haptic="selection"
       onPress={() => onValueChange(!value)}
       {...props}
     >
@@ -28,6 +30,6 @@ export default function AppCheckbox({
         size={26}
         color={disabled ? "#a8a29e" : "#1c1917"}
       />
-    </Pressable>
+    </PressableScale>
   );
 }

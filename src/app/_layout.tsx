@@ -5,19 +5,18 @@ import { Epilogue_700Bold } from "@expo-google-fonts/epilogue/700Bold";
 import { PlusJakartaSans_400Regular } from "@expo-google-fonts/plus-jakarta-sans/400Regular";
 import { PlusJakartaSans_600SemiBold } from "@expo-google-fonts/plus-jakarta-sans/600SemiBold";
 import { PlusJakartaSans_700Bold } from "@expo-google-fonts/plus-jakarta-sans/700Bold";
-import { ConvexProvider, ConvexReactClient, useQuery } from "convex/react";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { ConvexProvider, ConvexReactClient, useQuery } from "convex/react";
 import { useFonts } from "expo-font";
-import * as SplashScreen from "expo-splash-screen";
 import { Stack } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect } from "react";
-import { DevSettings } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { colors } from "@/lib/constants";
 import { api } from "@/convex/_generated/api";
-import { clearStoredSession, SessionProvider, useSession } from "@/providers/session-provider";
+import { colors } from "@/lib/constants";
+import { SessionProvider, useSession } from "@/providers/session-provider";
 
 void SplashScreen.preventAutoHideAsync();
 const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
@@ -36,12 +35,6 @@ export default function RootLayout() {
     PlusJakartaSans_700Bold,
   });
   const finishStartup = useCallback(() => void SplashScreen.hideAsync(), []);
-  useEffect(() => {
-    if (!__DEV__) return;
-    DevSettings.addMenuItem("Clear BetterUs storage", () => {
-      void clearStoredSession().then(() => DevSettings.reload("BetterUs storage cleared"));
-    });
-  }, []);
   if (!ready) return null;
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

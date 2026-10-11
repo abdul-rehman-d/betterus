@@ -3,16 +3,16 @@ import { useMutation, useQuery } from "convex/react";
 import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { View } from "react-native";
-import AppButton from "@/components/ui/app-button";
 import AppBottomSheet from "@/components/ui/app-bottom-sheet";
+import AppButton from "@/components/ui/app-button";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
 import AppTextInput from "@/components/ui/app-text-input";
 import PageHeader from "@/components/ui/page-header";
 import SegmentedControl from "@/components/ui/segmented-control";
-import { InlineError, LoadingState } from "@/components/ui/states";
+import { ContentLoading, InlineError } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
-import { measurementLabel, type MeasurementKey, type MeasurementUnit } from "@/lib/constants";
+import { type MeasurementKey, type MeasurementUnit, measurementLabel } from "@/lib/constants";
 import { formatDate, isSunday } from "@/lib/dates";
 import { formatBodyMetric } from "@/lib/numbers";
 import { useSession } from "@/providers/session-provider";
@@ -26,7 +26,10 @@ export default function MeasurementsModal() {
   if (!userId || !date || !user || record === undefined)
     return (
       <AppBottomSheet snapPoints={["50%", "72%"]}>
-        <LoadingState />
+        <AppScreen inSheet>
+          <PageHeader close title="Measurements" />
+          <ContentLoading label="Loading measurements" variant="form" />
+        </AppScreen>
       </AppBottomSheet>
     );
   if (!isSunday(date))

@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { View } from "react-native";
-import Svg, { Circle, Line, Path } from "react-native-svg";
-import { colors } from "@/lib/constants";
+import Svg, { Circle, Defs, Line, LinearGradient, Path, Stop } from "react-native-svg";
 import { buildChartGeometry } from "@/lib/chart";
+import { colors } from "@/lib/constants";
 import { formatBodyMetric } from "@/lib/numbers";
 
 export default function LineChart({ values }: { values: Array<{ date: string; value: number }> }) {
@@ -20,6 +20,12 @@ export default function LineChart({ values }: { values: Array<{ date: string; va
     >
       {width ? (
         <Svg width={width} height={height}>
+          <Defs>
+            <LinearGradient id="chartFill" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor={colors.berry} stopOpacity={0.18} />
+              <Stop offset="1" stopColor={colors.berry} stopOpacity={0} />
+            </LinearGradient>
+          </Defs>
           {[0.25, 0.5, 0.75].map((fraction) => (
             <Line
               key={fraction}
@@ -31,6 +37,12 @@ export default function LineChart({ values }: { values: Array<{ date: string; va
               strokeDasharray="3 4"
             />
           ))}
+          {points.length > 1 ? (
+            <Path
+              d={`${path} L ${points.at(-1)?.x ?? pad} ${height - pad} L ${points[0]?.x ?? pad} ${height - pad} Z`}
+              fill="url(#chartFill)"
+            />
+          ) : null}
           <Path
             d={path}
             fill="none"

@@ -2,12 +2,12 @@ import { useForm } from "@tanstack/react-form";
 import { useQuery } from "convex/react";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
+import ProgressHeader from "@/components/onboarding/progress-header";
+import StepIntro from "@/components/onboarding/step-intro";
 import AppButton from "@/components/ui/app-button";
 import AppScreen from "@/components/ui/app-screen";
-import AppText from "@/components/ui/app-text";
 import AppTextInput from "@/components/ui/app-text-input";
-import ProgressHeader from "@/components/onboarding/progress-header";
+import InfoCallout from "@/components/ui/info-callout";
 import { api } from "@/convex/_generated/api";
 import { useOnboarding } from "@/providers/onboarding-provider";
 
@@ -33,13 +33,12 @@ export default function UsernameScreen() {
   return (
     <AppScreen>
       <ProgressHeader step={1} />
-      <View className="gap-2">
-        <AppText className="font-body-semibold uppercase text-berry">Get started</AppText>
-        <AppText variant="display">Choose your username</AppText>
-        <AppText>
-          Pick a unique handle for your personal tracking log. Usernames are permanent once set.
-        </AppText>
-      </View>
+      <StepIntro
+        eyebrow="Get started"
+        icon="account-heart-outline"
+        title="Choose your username"
+        body="Pick a unique handle for your personal tracking log. Usernames are permanent once set."
+      />
       <form.Field
         name="username"
         validators={{
@@ -83,10 +82,10 @@ export default function UsernameScreen() {
           );
         }}
       </form.Field>
-      <AppText className="rounded-3xl bg-petal-soft p-5">
+      <InfoCallout icon="shield-lock-outline">
         Your username becomes your fixed BetterUs handle. No email or password is needed for this
         device profile.
-      </AppText>
+      </InfoCallout>
       <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
         {([canSubmit, submitting]) => (
           <AppButton

@@ -3,11 +3,12 @@ import { router } from "expo-router";
 import { View } from "react-native";
 import ProgressHeader from "@/components/onboarding/progress-header";
 import SelectionCard from "@/components/onboarding/selection-card";
+import StepIntro from "@/components/onboarding/step-intro";
 import AppButton from "@/components/ui/app-button";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
 import AppTextInput from "@/components/ui/app-text-input";
-import { genders, type Gender } from "@/lib/constants";
+import { type Gender, genders } from "@/lib/constants";
 import { useOnboarding } from "@/providers/onboarding-provider";
 
 export default function ProfileStep() {
@@ -22,14 +23,12 @@ export default function ProfileStep() {
   return (
     <AppScreen>
       <ProgressHeader step={2} />
-      <View className="gap-2">
-        <AppText className="font-body-semibold uppercase text-berry">About you</AppText>
-        <AppText variant="display">Tell us about you</AppText>
-        <AppText>
-          Your name personalizes your dashboard. Choose the gender label that feels right for your
-          profile.
-        </AppText>
-      </View>
+      <StepIntro
+        eyebrow="About you"
+        icon="account-outline"
+        title="Tell us about you"
+        body="Add your name and select your gender."
+      />
       <form.Field
         name="name"
         validators={{

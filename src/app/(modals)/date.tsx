@@ -3,12 +3,13 @@ import { useBottomSheetModal } from "@gorhom/bottom-sheet";
 import { useQuery } from "convex/react";
 import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useCallback, useMemo, useRef, useState } from "react";
-import { Pressable, View } from "react-native";
-import AppButton from "@/components/ui/app-button";
+import { View } from "react-native";
 import AppBottomSheet from "@/components/ui/app-bottom-sheet";
+import AppButton from "@/components/ui/app-button";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
 import PageHeader from "@/components/ui/page-header";
+import PressableScale from "@/components/ui/pressable-scale";
 import { api } from "@/convex/_generated/api";
 import { colors } from "@/lib/constants";
 import { calendarGrid, fromIsoDate, toIsoDate } from "@/lib/dates";
@@ -51,7 +52,7 @@ export default function DateModal() {
     <AppBottomSheet snapPoints={["78%", "94%"]} onDismiss={handleDismiss}>
       <AppScreen inSheet>
         <PageHeader close title="Change date" />
-        <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center justify-between rounded-3xl bg-white p-2">
           <AppButton
             iconOnly
             icon="chevron-left"
@@ -71,23 +72,24 @@ export default function DateModal() {
             onPress={() => shiftMonth(1)}
           />
         </View>
-        <View className="flex-row">
+        <View className="flex-row px-1">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
             <AppText key={day} variant="caption" className="w-[14.28%] text-center">
               {day[0]}
             </AppText>
           ))}
         </View>
-        <View className="flex-row flex-wrap">
+        <View className="flex-row flex-wrap rounded-3xl border border-outline-soft bg-white p-2">
           {grid.map(({ date, inMonth }) => {
             const selected = date === params.date;
             const disabled = date > today;
             return (
-              <Pressable
+              <PressableScale
                 key={date}
                 accessibilityLabel={date}
                 disabled={disabled}
                 className="h-12 w-[14.28%] items-center justify-center"
+                haptic="selection"
                 onPress={() => select(date)}
               >
                 <View
@@ -102,7 +104,7 @@ export default function DateModal() {
                     />
                   ) : null}
                 </View>
-              </Pressable>
+              </PressableScale>
             );
           })}
         </View>

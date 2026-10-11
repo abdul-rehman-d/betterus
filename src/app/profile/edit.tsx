@@ -8,14 +8,21 @@ import AppButton from "@/components/ui/app-button";
 import AppScreen from "@/components/ui/app-screen";
 import AppTextInput from "@/components/ui/app-text-input";
 import PageHeader from "@/components/ui/page-header";
-import { InlineError, LoadingState } from "@/components/ui/states";
+import { ContentLoading, InlineError } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
-import { genders, type Gender } from "@/lib/constants";
+import type { Doc } from "@/convex/_generated/dataModel";
+import { genders } from "@/lib/constants";
 import { useSession } from "@/providers/session-provider";
 export default function EditProfile() {
   const { userId } = useSession();
   const user = useQuery(api.users.get, userId ? { userId } : "skip");
-  if (!userId || !user) return <LoadingState />;
+  if (!userId || !user)
+    return (
+      <AppScreen>
+        <PageHeader title="Edit profile" />
+        <ContentLoading label="Loading profile settings" variant="form" />
+      </AppScreen>
+    );
   return <EditForm userId={userId} name={user.name} gender={user.gender} />;
 }
 function EditForm({
@@ -25,7 +32,7 @@ function EditForm({
 }: {
   userId: NonNullable<ReturnType<typeof useSession>["userId"]>;
   name: string;
-  gender: Gender;
+  gender: Doc<"users">["gender"];
 }) {
   const update = useMutation(api.users.updateProfile);
   const [error, setError] = useState<string | null>(null);

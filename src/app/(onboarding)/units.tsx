@@ -2,9 +2,11 @@ import { useForm } from "@tanstack/react-form";
 import { router } from "expo-router";
 import { View } from "react-native";
 import ProgressHeader from "@/components/onboarding/progress-header";
+import StepIntro from "@/components/onboarding/step-intro";
 import AppButton from "@/components/ui/app-button";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
+import InfoCallout from "@/components/ui/info-callout";
 import SegmentedControl from "@/components/ui/segmented-control";
 import type { MeasurementUnit, WeightUnit } from "@/lib/constants";
 import { useOnboarding } from "@/providers/onboarding-provider";
@@ -21,11 +23,12 @@ export default function UnitsStep() {
   return (
     <AppScreen>
       <ProgressHeader step={3} />
-      <View className="gap-2">
-        <AppText className="font-body-semibold uppercase text-berry">Preferences</AppText>
-        <AppText variant="display">Choose your units</AppText>
-        <AppText>Select how weight and body measurements are displayed.</AppText>
-      </View>
+      <StepIntro
+        eyebrow="Preferences"
+        icon="tune-variant"
+        title="Choose your units"
+        body="Select how weight and body measurements are displayed."
+      />
       <form.Field name="weightUnit">
         {(field) => (
           <View className="gap-3">
@@ -56,10 +59,10 @@ export default function UnitsStep() {
           </View>
         )}
       </form.Field>
-      <AppText className="rounded-card bg-petal-soft p-5">
+      <InfoCallout icon="history">
         Changing preferences later only changes how values are displayed. Your historical entries
         keep their original precision.
-      </AppText>
+      </InfoCallout>
       <AppButton label="Continue" icon="arrow-right" onPress={() => void form.handleSubmit()} />
     </AppScreen>
   );

@@ -1,14 +1,14 @@
 import {
   BottomSheetBackdrop,
+  type BottomSheetBackdropProps,
   BottomSheetModal,
   BottomSheetScrollView,
-  type BottomSheetBackdropProps,
 } from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
 import type { PropsWithChildren } from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
-import { colors } from "@/lib/constants";
+import { colors, shadows } from "@/lib/constants";
 
 type Props = PropsWithChildren<{
   onDismiss?: () => void;
@@ -35,7 +35,7 @@ export default function AppBottomSheet({
         {...props}
         appearsOnIndex={0}
         disappearsOnIndex={-1}
-        opacity={0.35}
+        opacity={0.45}
         pressBehavior="close"
       />
     ),
@@ -73,6 +73,6 @@ export default function AppBottomSheet({
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { flexGrow: 1, paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 },
-  background: { backgroundColor: colors.background, borderRadius: 30 },
-  handle: { backgroundColor: colors.outline, width: 44 },
+  background: { backgroundColor: colors.background, borderRadius: 32, ...shadows.floating },
+  handle: { backgroundColor: colors.outline, width: 42, height: 5 },
 });

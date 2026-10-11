@@ -2,14 +2,14 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery } from "convex/react";
 import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import AppButton from "@/components/ui/app-button";
 import AppBottomSheet from "@/components/ui/app-bottom-sheet";
+import AppButton from "@/components/ui/app-button";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
 import AppTextInput from "@/components/ui/app-text-input";
 import PageHeader from "@/components/ui/page-header";
 import SegmentedControl from "@/components/ui/segmented-control";
-import { InlineError, LoadingState } from "@/components/ui/states";
+import { ContentLoading, InlineError } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
 import type { WeightUnit } from "@/lib/constants";
 import { formatDate } from "@/lib/dates";
@@ -25,7 +25,10 @@ export default function WeightModal() {
   if (!userId || !date || !user || record === undefined)
     return (
       <AppBottomSheet snapPoints={["50%", "72%"]}>
-        <LoadingState />
+        <AppScreen inSheet>
+          <PageHeader close title="Weight" />
+          <ContentLoading label="Loading weight entry" variant="form" />
+        </AppScreen>
       </AppBottomSheet>
     );
   return (

@@ -6,16 +6,23 @@ import { View } from "react-native";
 import AppButton from "@/components/ui/app-button";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
+import InfoCallout from "@/components/ui/info-callout";
 import PageHeader from "@/components/ui/page-header";
 import SegmentedControl from "@/components/ui/segmented-control";
-import { InlineError, LoadingState } from "@/components/ui/states";
+import { ContentLoading, InlineError } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
 import type { MeasurementUnit, WeightUnit } from "@/lib/constants";
 import { useSession } from "@/providers/session-provider";
 export default function EditUnits() {
   const { userId } = useSession();
   const user = useQuery(api.users.get, userId ? { userId } : "skip");
-  if (!userId || !user) return <LoadingState />;
+  if (!userId || !user)
+    return (
+      <AppScreen>
+        <PageHeader title="Edit units" />
+        <ContentLoading label="Loading unit preferences" variant="form" />
+      </AppScreen>
+    );
   return (
     <UnitsForm
       userId={userId}
@@ -80,9 +87,9 @@ function UnitsForm({
           </View>
         )}
       </form.Field>
-      <AppText className="rounded-card bg-petal-soft p-5">
+      <InfoCallout icon="history">
         Existing records stay in their original units and are converted only for display.
-      </AppText>
+      </InfoCallout>
       <InlineError message={error} />
       <AppButton requiresNetwork label="Save units" onPress={() => void form.handleSubmit()} />
     </AppScreen>
