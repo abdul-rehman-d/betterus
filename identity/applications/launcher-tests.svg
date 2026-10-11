@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1440" viewBox="0 0 1440 1440" role="img" aria-labelledby="title desc">
+  <title id="title">BetterUs launcher icon stress tests</title>
+  <desc id="desc">The BetterUs icon shown through iOS, Android circle, Android squircle, monochrome, and small-size contexts.</desc>
+  <defs>
+    <linearGradient id="page" x1="0" y1="0" x2="1440" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF9FA"/>
+      <stop offset="1" stop-color="#FBEFF3"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#D94B7C"/>
+      <stop offset="0.52" stop-color="#B51E52"/>
+      <stop offset="1" stop-color="#81143C"/>
+    </linearGradient>
+    <symbol id="app-tile" viewBox="0 0 1024 1024">
+      <rect width="1024" height="1024" fill="url(#tile)"/>
+      <g transform="translate(97 88) scale(3.24)">
+        <path fill="none" stroke="#FFF9FA" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/>
+        <path fill="none" stroke="#FFD7E4" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/>
+      </g>
+    </symbol>
+    <clipPath id="ios"><rect x="80" y="190" width="260" height="260" rx="58"/></clipPath>
+    <clipPath id="circle"><circle cx="510" cy="320" r="130"/></clipPath>
+    <clipPath id="squircle"><rect x="680" y="190" width="260" height="260" rx="82"/></clipPath>
+  </defs>
+  <rect width="1440" height="1440" fill="url(#page)"/>
+  <text x="80" y="86" fill="#2A131E" font-family="Epilogue, Arial, sans-serif" font-size="42" font-weight="700">BetterUs launcher tests</text>
+  <text x="80" y="128" fill="#765F68" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="20">iOS, Android masks, themed icon, and true small-size checks</text>
+
+  <g clip-path="url(#ios)">
+    <rect x="80" y="190" width="260" height="260" fill="url(#tile)"/>
+    <g transform="translate(104.63 212.34) scale(.82266)">
+      <path fill="none" stroke="#FFF9FA" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/>
+      <path fill="none" stroke="#FFD7E4" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/>
+    </g>
+  </g>
+  <text x="80" y="490" fill="#2A131E" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18" font-weight="700">iOS rounded mask</text>
+
+  <g clip-path="url(#circle)">
+    <rect x="380" y="190" width="260" height="260" fill="url(#tile)"/>
+    <g transform="translate(404.63 212.34) scale(.82266)">
+      <path fill="none" stroke="#FFF9FA" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/>
+      <path fill="none" stroke="#FFD7E4" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/>
+    </g>
+  </g>
+  <text x="380" y="490" fill="#2A131E" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18" font-weight="700">Android circle</text>
+
+  <g clip-path="url(#squircle)">
+    <rect x="680" y="190" width="260" height="260" fill="url(#tile)"/>
+    <g transform="translate(704.63 212.34) scale(.82266)">
+      <path fill="none" stroke="#FFF9FA" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/>
+      <path fill="none" stroke="#FFD7E4" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/>
+    </g>
+  </g>
+  <text x="680" y="490" fill="#2A131E" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18" font-weight="700">Android squircle</text>
+
+  <rect x="980" y="190" width="260" height="260" rx="82" fill="#E8C6D3"/>
+  <g transform="translate(1002 209) scale(0.82)">
+    <path fill="none" stroke="#5D2A42" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/>
+    <path fill="none" stroke="#5D2A42" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/>
+  </g>
+  <text x="980" y="490" fill="#2A131E" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18" font-weight="700">Android themed</text>
+
+  <rect x="80" y="585" width="1280" height="220" rx="38" fill="#FFFFFF"/>
+  <text x="120" y="637" fill="#765F68" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="1">TRUE LAUNCHER SIZES</text>
+  <rect x="120" y="675" width="96" height="96" rx="21" fill="url(#tile)"/>
+  <g transform="translate(129.09 683.25) scale(.30375)"><path fill="none" stroke="#FFF9FA" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/><path fill="none" stroke="#FFD7E4" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/></g>
+  <rect x="276" y="691" width="64" height="64" rx="14" fill="url(#tile)"/>
+  <g transform="translate(282.06 696.5) scale(.2025)"><path fill="none" stroke="#FFF9FA" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/><path fill="none" stroke="#FFD7E4" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/></g>
+  <rect x="400" y="699" width="48" height="48" rx="11" fill="url(#tile)"/>
+  <g transform="translate(404.55 703.13) scale(.15188)"><path fill="none" stroke="#FFF9FA" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/><path fill="none" stroke="#FFD7E4" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/></g>
+  <rect x="508" y="707" width="32" height="32" rx="7" fill="url(#tile)"/>
+  <g transform="translate(511.03 709.75) scale(.10125)"><path fill="none" stroke="#FFF9FA" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/><path fill="none" stroke="#FFD7E4" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/></g>
+  <text x="120" y="791" fill="#765F68" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="15">96 px</text>
+  <text x="276" y="791" fill="#765F68" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="15">64 px</text>
+  <text x="400" y="791" fill="#765F68" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="15">48 px</text>
+  <text x="508" y="791" fill="#765F68" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="15">32 px</text>
+  <g transform="translate(614 666) scale(.38)">
+    <path fill="none" stroke="#2A131E" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/>
+    <path fill="none" stroke="#B51E52" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/>
+  </g>
+  <text x="730" y="724" fill="#2A131E" font-family="Epilogue, Arial, sans-serif" font-size="30" font-weight="700">BetterUs</text>
+  <text x="730" y="757" fill="#765F68" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="16">Symbol + live product typography</text>
+  <rect x="80" y="875" width="1280" height="400" rx="38" fill="#2A131E"/>
+  <text x="120" y="950" fill="#FFD7E4" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="1">SYSTEM CHECK</text>
+  <text x="120" y="1015" fill="#FFF9FA" font-family="Epilogue, Arial, sans-serif" font-size="30" font-weight="700">One shape, every launcher context.</text>
+  <text x="120" y="1065" fill="#EAD7DE" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="19">The paired paths stay distinct through circular, squircle, tinted, and 32 px treatments.</text>
+  <circle cx="140" cy="1160" r="20" fill="#B51E52"/><text x="176" y="1167" fill="#FFF9FA" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18">BetterUs Berry</text>
+  <circle cx="390" cy="1160" r="20" fill="#D94B7C"/><text x="426" y="1167" fill="#FFF9FA" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18">Berry Light</text>
+  <circle cx="620" cy="1160" r="20" fill="#FFD7E4"/><text x="656" y="1167" fill="#FFF9FA" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18">Petal</text>
+  <circle cx="810" cy="1160" r="20" fill="#FFF9FA"/><text x="846" y="1167" fill="#FFF9FA" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18">Warm White</text>
+  <text x="120" y="1234" fill="#A38E96" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="15">Production artwork keeps the Android mark inside the official centered 66/108 safe zone.</text>
+</svg>

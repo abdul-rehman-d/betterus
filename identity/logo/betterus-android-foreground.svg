@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 432 432" role="img" aria-labelledby="title desc">
+  <title id="title">BetterUs Android adaptive icon foreground</title>
+  <desc id="desc">BetterUs mark centered inside the Android 66 by 66 safe zone.</desc>
+  <g transform="translate(43.2 39.2) scale(1.35)">
+    <path fill="none" stroke="#FFF9FA" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/>
+    <path fill="none" stroke="#FFD7E4" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/>
+  </g>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">BetterUs splash symbol</title>
+  <desc id="desc">Berry BetterUs symbol for the light splash screen.</desc>
+  <path fill="none" stroke="#2A131E" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/>
+  <path fill="none" stroke="#B51E52" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/>
+</svg>
