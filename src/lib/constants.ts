@@ -44,16 +44,14 @@ export const shadows = {
   card: {
     shadowColor: "#5F223A",
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
+    shadowOpacity: 0.11,
     shadowRadius: 20,
-    elevation: 4,
   },
   floating: {
     shadowColor: "#4A172D",
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.16,
     shadowRadius: 24,
-    elevation: 10,
   },
 } as const;
 

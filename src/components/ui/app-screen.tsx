@@ -1,12 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import {
-  Children,
-  isValidElement,
-  type PropsWithChildren,
-  type ReactNode,
-  useEffect,
-  useState,
-} from "react";
+import { Children, isValidElement, type PropsWithChildren } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -46,13 +39,18 @@ export default function AppScreen({
         </View>
       ) : null}
       {Children.toArray(children).map((child, index) => (
-        <EntranceSection
+        <Animated.View
           key={isValidElement(child) ? child.key : String(child)}
-          index={index}
-          reduceMotion={reduceMotion}
+          entering={
+            reduceMotion
+              ? undefined
+              : FadeInDown.delay(Math.min(index, 6) * 55)
+                  .duration(420)
+                  .withInitialValues({ opacity: 0, transform: [{ translateY: 12 }] })
+          }
         >
           {child}
-        </EntranceSection>
+        </Animated.View>
       ))}
     </>
   );
@@ -88,48 +86,6 @@ export default function AppScreen({
         {content}
       </KeyboardAvoidingView>
     </SafeAreaView>
-  );
-}
-
-function EntranceSection({
-  children,
-  index,
-  reduceMotion,
-}: {
-  children: ReactNode;
-  index: number;
-  reduceMotion: boolean;
-}) {
-  const delay = Math.min(index, 6) * 55;
-  const [compositeOnAndroid, setCompositeOnAndroid] = useState(
-    Platform.OS === "android" && !reduceMotion,
-  );
-
-  useEffect(() => {
-    if (Platform.OS !== "android" || reduceMotion) {
-      setCompositeOnAndroid(false);
-      return;
-    }
-    setCompositeOnAndroid(true);
-    const timeout = setTimeout(() => setCompositeOnAndroid(false), delay + 500);
-    return () => clearTimeout(timeout);
-  }, [delay, reduceMotion]);
-
-  return (
-    <Animated.View
-      collapsable={false}
-      entering={
-        reduceMotion
-          ? undefined
-          : FadeInDown.delay(delay)
-              .duration(420)
-              .withInitialValues({ opacity: 0, transform: [{ translateY: 12 }] })
-      }
-      needsOffscreenAlphaCompositing={compositeOnAndroid}
-      renderToHardwareTextureAndroid={compositeOnAndroid}
-    >
-      {children}
-    </Animated.View>
   );
 }
 
