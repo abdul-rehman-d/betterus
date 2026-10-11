@@ -28,11 +28,6 @@ export const measurementKeyValidator = v.union(
 );
 
 export default defineSchema({
-  tasks: defineTable({
-    text: v.string(),
-    is_completed: v.boolean(),
-  }),
-
   users: defineTable({
     name: v.string(),
     username: v.string(),

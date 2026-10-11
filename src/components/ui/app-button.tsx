@@ -1,13 +1,16 @@
-import Ionicons from "@expo/vector-icons/Ionicons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import type { ComponentProps } from "react";
 import { ActivityIndicator, Pressable, type PressableProps, Text } from "react-native";
+import useNetworkStatus from "@/hooks/use-network-status";
+import { colors } from "@/lib/constants";
 
-type AppButtonProps = PressableProps & {
-  icon?: ComponentProps<typeof Ionicons>["name"];
+type Props = PressableProps & {
+  icon?: ComponentProps<typeof MaterialCommunityIcons>["name"];
   iconOnly?: boolean;
   label: string;
   loading?: boolean;
-  variant?: "primary" | "ghost";
+  requiresNetwork?: boolean;
+  variant?: "primary" | "secondary" | "ghost" | "destructive";
 };
 
 export default function AppButton({
@@ -18,36 +21,35 @@ export default function AppButton({
   iconOnly = false,
   label,
   loading = false,
+  requiresNetwork = false,
   variant = "primary",
   ...props
-}: AppButtonProps) {
-  const isDisabled = disabled || loading;
-  const isGhost = variant === "ghost";
-  const foregroundColor = isGhost ? "#dc2626" : "#ffffff";
-
+}: Props) {
+  const { isOffline } = useNetworkStatus();
+  const isDisabled = disabled || loading || (requiresNetwork && isOffline);
+  const primary = variant === "primary";
+  const destructive = variant === "destructive";
+  const foreground = primary ? colors.white : destructive ? colors.danger : colors.berry;
   return (
     <Pressable
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, busy: loading }}
-      className={`min-h-12 flex-row items-center justify-center gap-2 rounded-xl active:opacity-75 ${
-        isGhost ? "bg-transparent" : "bg-stone-950"
-      } ${iconOnly ? "w-12 px-0" : "px-4"} ${isDisabled ? "opacity-40" : ""} ${className ?? ""}`}
+      className={`min-h-12 flex-row items-center justify-center gap-2 rounded-full px-5 active:opacity-75 ${primary ? "bg-berry" : variant === "secondary" ? "bg-petal-soft" : "bg-transparent"} ${iconOnly ? "w-12 px-0" : ""} ${isDisabled ? "opacity-40" : ""} ${className ?? ""}`}
       disabled={isDisabled}
       {...props}
     >
-      {loading ? (
-        <ActivityIndicator color={foregroundColor} />
-      ) : (
-        <>
-          {icon ? <Ionicons name={icon} size={18} color={foregroundColor} /> : null}
-          {iconOnly ? null : (
-            <Text className={`font-semibold ${isGhost ? "text-red-600" : "text-white"}`}>
-              {label}
-            </Text>
-          )}
-        </>
-      )}
+      {loading ? <ActivityIndicator color={foreground} /> : null}
+      {!loading && icon ? (
+        <MaterialCommunityIcons name={icon} size={20} color={foreground} />
+      ) : null}
+      {!loading && !iconOnly ? (
+        <Text
+          className={`font-body-semibold text-[15px] ${primary ? "text-white" : destructive ? "text-danger" : "text-berry"}`}
+        >
+          {label}
+        </Text>
+      ) : null}
     </Pressable>
   );
 }

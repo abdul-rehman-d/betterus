@@ -8,7 +8,9 @@
  * @module
  */
 
-import type * as tasks from "../tasks.js";
+import type * as dailyRecords from "../dailyRecords.js";
+import type * as lib from "../lib.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -17,7 +19,9 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  tasks: typeof tasks;
+  dailyRecords: typeof dailyRecords;
+  lib: typeof lib;
+  users: typeof users;
 }>;
 
 /**
