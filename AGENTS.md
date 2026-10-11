@@ -40,6 +40,24 @@ Docs: https://docs.expo.dev/eas/index.md
 - Expo Go only includes its bundled native modules. After adding a library with native code, the app needs a development build: `npx expo run:ios|android` locally, or `eas build --profile development`.
 - Prefer recommended Expo modules over third-party libraries, and check your available skills before adding dependencies. Docs: https://docs.expo.dev/versions/latest/index.md
 
+## UI Design & Motion Standards
+
+Build premium, polished, native-feeling React Native interfaces. Functionality alone is not sufficient.
+
+- Establish a consistent design system: spacing, typography, colors, radii, elevations, and surfaces.
+- Use clear visual hierarchy, carefully balanced whitespace, and intentional typography.
+- Introduce subtle shadows, layered surfaces, and gradients where they improve visual depth.
+- Every interactive element must provide visual feedback. Use spring-based press effects, state transitions, or appropriate haptics.
+- Use Reanimated for performant entrance animations, layout transitions, and gesture-driven interactions.
+- Apply staggered entrance animations to relevant lists or dashboard cards without overwhelming the user.
+- Make loading, empty, success, and error states visually polished.
+- Avoid generic flat layouts, excessive borders, arbitrary colors, and unnecessary animation.
+- Respect reduced-motion preferences, accessibility, and platform-specific conventions.
+- Prefer existing project components and design tokens over introducing competing styling systems.
+- Before completing UI work, review each affected screen for visual hierarchy, consistency, depth, motion, and interaction feedback.
+
+Target: a refined, production-quality mobile interface, not a functional wireframe.
+
 <!-- convex-ai-start -->
 
 This project uses [Convex](https://convex.dev) as its backend.
