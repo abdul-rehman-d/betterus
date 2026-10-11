@@ -27,76 +27,31 @@ export default function Home() {
     api.dailyRecords.listRange,
     userId ? { userId, startDate: week[0], endDate: week[6] > today ? today : week[6] } : "skip",
   );
+
   if (!userId || user === undefined || record === undefined || weekData === undefined)
     return <LoadingState />;
-  const dataDates = new Set(weekData.map((item) => item.date));
-  const navigateDate = (date: string) => router.setParams({ date });
+
   return (
     <AppScreen bottomInset={false}>
       <View className="gap-1">
         <AppText variant="display">BetterUs</AppText>
         <AppText>Your body log, one honest entry at a time.</AppText>
       </View>
-      <AppCard className="gap-4">
-        <View className="flex-row items-center justify-between">
-          <AppButton
-            iconOnly
-            icon="chevron-left"
-            label="Previous day"
-            variant="secondary"
-            onPress={() => navigateDate(addDays(selectedDate, -1))}
-          />
-          <View className="items-center">
-            <AppText className="uppercase text-berry">
-              {selectedDate === today ? "Today" : fromRelative(selectedDate)}
-            </AppText>
-            <AppText variant="subtitle">
-              {formatDate(selectedDate, { day: "numeric", month: "long", year: "numeric" })}
-            </AppText>
-          </View>
-          <AppButton
-            iconOnly
-            icon="chevron-right"
-            label="Next day"
-            variant="secondary"
-            disabled={selectedDate >= today}
-            onPress={() => navigateDate(addDays(selectedDate, 1))}
-          />
-        </View>
-        <View className="flex-row justify-between">
-          {week.map((date) => {
-            const active = date === selectedDate;
-            const disabled = date > today;
-            const day = new Date(`${date}T12:00:00`);
-            return (
-              <Pressable
-                key={date}
-                disabled={disabled}
-                className={`min-h-[62px] min-w-[40px] items-center justify-center rounded-2xl ${active ? "bg-berry" : ""} ${disabled ? "opacity-30" : ""}`}
-                onPress={() => navigateDate(date)}
-              >
-                <AppText variant="caption" className={active ? "text-white" : ""}>
-                  {day.toLocaleDateString(undefined, { weekday: "narrow" })}
-                </AppText>
-                <AppText variant="label" className={active ? "text-white" : ""}>
-                  {day.getDate()}
-                </AppText>
-                <View
-                  className={`mt-1 h-1.5 w-1.5 rounded-full ${dataDates.has(date) ? (active ? "bg-white" : "bg-berry") : "bg-transparent"}`}
-                />
-              </Pressable>
-            );
-          })}
-        </View>
-        <AppButton
-          label="Change date"
-          variant="ghost"
-          icon="calendar-month-outline"
+      <View className="items-center">
+        <Pressable
+          className="items-center"
           onPress={() =>
             router.push({ pathname: "/(modals)/date", params: { date: selectedDate } })
           }
-        />
-      </AppCard>
+        >
+          <AppText className="uppercase text-berry">
+            {selectedDate === today ? "Today" : fromRelative(selectedDate)}
+          </AppText>
+          <AppText className="font-medium" variant="subtitle">
+            {formatDate(selectedDate, { day: "numeric", month: "long", year: "numeric" })}
+          </AppText>
+        </Pressable>
+      </View>
       <View className="flex-row items-center justify-between">
         <AppText variant="subtitle">Daily log</AppText>
         <AppText>{formatDate(selectedDate, { weekday: "long" })}</AppText>
