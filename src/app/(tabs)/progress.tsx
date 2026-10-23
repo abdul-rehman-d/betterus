@@ -1,17 +1,21 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useQuery } from "convex/react";
+import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { View } from "react-native";
+import Animated, { FadeInDown, useReducedMotion } from "react-native-reanimated";
 import LineChart from "@/components/progress/line-chart";
 import ProgressEntries from "@/components/progress/progress-entries";
+import AppButton from "@/components/ui/app-button";
 import AppCard from "@/components/ui/app-card";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
+import PressableScale from "@/components/ui/pressable-scale";
 import SegmentedControl from "@/components/ui/segmented-control";
 import { ContentLoading, EmptyState } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
 import { colors, type MeasurementKey, measurementLabel } from "@/lib/constants";
-import { startOfRange, toIsoDate } from "@/lib/dates";
+import { isSunday, startOfRange, toIsoDate } from "@/lib/dates";
 import { formatBodyMetric, roundBodyMetric } from "@/lib/numbers";
 import { useSession } from "@/providers/session-provider";
 
@@ -19,7 +23,10 @@ type Range = "7" | "30" | "90" | "365";
 export default function Progress() {
   const { userId } = useSession();
   const [range, setRange] = useState<Range>("30");
+  const [measurementsExpanded, setMeasurementsExpanded] = useState(false);
+  const reduceMotion = useReducedMotion();
   const today = toIsoDate(new Date());
+  const user = useQuery(api.users.get, userId ? { userId } : "skip");
   const records = useQuery(
     api.dailyRecords.listProgress,
     userId ? { userId, startDate: startOfRange(today, Number(range)), endDate: today } : "skip",
@@ -44,6 +51,22 @@ export default function Progress() {
   }, [records]);
   const loading = records === undefined;
   const hasData = Boolean(series.weight.length || series.measurements.size);
+  const measurementEntries = useMemo(() => {
+    const entries = Array.from(series.measurements.entries());
+    const preferenceOrder = user?.measurementPreferences ?? [];
+    return entries.sort(([left], [right]) => {
+      const leftIndex = preferenceOrder.indexOf(left);
+      const rightIndex = preferenceOrder.indexOf(right);
+      return (leftIndex < 0 ? Number.MAX_SAFE_INTEGER : leftIndex) -
+        (rightIndex < 0 ? Number.MAX_SAFE_INTEGER : rightIndex);
+    });
+  }, [series.measurements, user?.measurementPreferences]);
+  const latestMeasurement = measurementEntries
+    .flatMap(([key, values]) => {
+      const latest = values.at(-1);
+      return latest ? [{ key, ...latest }] : [];
+    })
+    .sort((left, right) => right.date.localeCompare(left.date))[0];
   return (
     <AppScreen bottomInset={false}>
       <View className="gap-2">
@@ -88,18 +111,75 @@ export default function Progress() {
           maxGapDays={1.5}
         />
       ) : null}
-      {!loading
-        ? Array.from(series.measurements.entries()).map(([key, values]) => (
-            <ChartCard
-              key={key}
-              title={measurementLabel(key)}
-              values={values}
-              startDate={startOfRange(today, Number(range))}
-              endDate={today}
-              maxGapDays={9}
+      {!loading ? (
+        <AppCard className="gap-4">
+          <PressableScale
+            accessibilityRole="button"
+            accessibilityState={{ expanded: measurementsExpanded }}
+            accessibilityLabel={`Measurements, ${measurementEntries.length} ${measurementEntries.length === 1 ? "type" : "types"}${latestMeasurement ? `, latest ${measurementLabel(latestMeasurement.key)} ${formatBodyMetric(latestMeasurement.value)} ${latestMeasurement.unit}` : ""}`}
+            className="min-h-12 flex-row items-center gap-3"
+            onPress={() => setMeasurementsExpanded((expanded) => !expanded)}
+          >
+            <View className="h-11 w-11 items-center justify-center rounded-2xl bg-petal-soft">
+              <MaterialCommunityIcons name="tape-measure" size={22} color={colors.berry} />
+            </View>
+            <View className="flex-1 gap-0.5">
+              <AppText variant="subtitle">Measurements</AppText>
+              <AppText variant="caption">
+                {latestMeasurement
+                  ? `${measurementEntries.length} tracked · Latest ${measurementLabel(latestMeasurement.key)} ${formatBodyMetric(latestMeasurement.value)} ${latestMeasurement.unit}`
+                  : "No measurements in this range"}
+              </AppText>
+            </View>
+            <AppText variant="caption" className="text-berry">
+              {measurementEntries.length}
+            </AppText>
+            <MaterialCommunityIcons
+              name={measurementsExpanded ? "chevron-up" : "chevron-down"}
+              size={22}
+              color={colors.muted}
             />
-          ))
-        : null}
+          </PressableScale>
+          {measurementsExpanded ? (
+            <Animated.View
+              entering={reduceMotion ? undefined : FadeInDown.duration(220)}
+              className="gap-4"
+            >
+              {measurementEntries.length ? (
+                measurementEntries.map(([key, values]) => (
+                  <ChartCard
+                    key={key}
+                    title={measurementLabel(key)}
+                    values={values}
+                    startDate={startOfRange(today, Number(range))}
+                    endDate={today}
+                    maxGapDays={9}
+                  />
+                ))
+              ) : (
+                <View className="gap-3 rounded-2xl bg-petal-soft/60 p-4">
+                  <AppText variant="subtitle">No measurements in this range</AppText>
+                  <AppText variant="caption">
+                    Log your measurements on a Sunday to see how they change over time.
+                  </AppText>
+                  <AppButton
+                    label="Log measurements"
+                    icon="plus"
+                    onPress={() => {
+                      const date = new Date();
+                      while (!isSunday(toIsoDate(date))) date.setDate(date.getDate() - 1);
+                      router.push({
+                        pathname: "/(modals)/measurements",
+                        params: { date: toIsoDate(date) },
+                      });
+                    }}
+                  />
+                </View>
+              )}
+            </Animated.View>
+          ) : null}
+        </AppCard>
+      ) : null}
     </AppScreen>
   );
 }
