@@ -83,7 +83,7 @@ export default function UsernameScreen() {
         }}
       </form.Field>
       <InfoCallout icon="shield-lock-outline">
-        Your username becomes your fixed BetterUs handle. No email or password is needed for this
+        Your username becomes your fixed BetterYou handle. No email or password is needed for this
         device profile.
       </InfoCallout>
       <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>

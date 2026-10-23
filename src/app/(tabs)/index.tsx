@@ -37,7 +37,7 @@ export default function Home() {
             Daily wellness
           </AppText>
         </View>
-        <AppText variant="display">BetterUs</AppText>
+        <AppText variant="display">BetterYou</AppText>
         <AppText className="max-w-[310px]">Your body log, one honest entry at a time.</AppText>
       </View>
       <PressableScale

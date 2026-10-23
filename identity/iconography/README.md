@@ -1,4 +1,4 @@
-# BetterUs iconography
+# BetterYou iconography
 
 - Rounded, friendly construction on a 24×24 grid.
 - Use consistent 2 px optical strokes at 24 px and round caps/joins.

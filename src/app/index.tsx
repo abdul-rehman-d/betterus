@@ -12,7 +12,7 @@ export default function Index() {
     if (!session.loading && session.userId && user === null) void session.clearUserId();
   }, [session, user]);
   if (session.loading || (session.userId && user === undefined))
-    return <LoadingState label="Opening BetterUs…" />;
+    return <LoadingState label="Opening BetterYou…" />;
   if (!session.userId || user === null) return <Redirect href="/(onboarding)/username" />;
   return <Redirect href="/(tabs)" />;
 }
