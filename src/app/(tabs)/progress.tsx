@@ -7,6 +7,7 @@ import Animated, { FadeInDown, useReducedMotion } from "react-native-reanimated"
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import LineChart from "@/components/progress/line-chart";
 import ProgressEntries from "@/components/progress/progress-entries";
+import WeeklyAverageEntries from "@/components/progress/weekly-average-entries";
 import AppButton from "@/components/ui/app-button";
 import AppCard from "@/components/ui/app-card";
 import AppScreen from "@/components/ui/app-screen";
@@ -19,7 +20,7 @@ import { colors, type MeasurementKey, measurementLabel } from "@/lib/constants";
 import { addDays, formatDate, isSunday, startOfRange, toIsoDate } from "@/lib/dates";
 import { formatBodyMetric, roundBodyMetric } from "@/lib/numbers";
 import { useAllTimeWeightReadings } from "@/hooks/use-all-time-weight-readings";
-import { buildWeeklyWeightAverages, formatWeekSpan } from "@/lib/weight-weekly-average";
+import { buildWeeklyWeightAverages, type WeeklyWeightAverage } from "@/lib/weight-weekly-average";
 import { useSession } from "@/providers/session-provider";
 
 type Range = "7" | "30" | "90" | "365";
@@ -342,18 +343,7 @@ function ChartCard({
   );
 }
 
-function WeeklyAverageCard({
-  values,
-}: {
-  values: Array<{
-    date: string;
-    startDate: string;
-    endDate: string;
-    value: number;
-    unit: string;
-    count: number;
-  }>;
-}) {
+function WeeklyAverageCard({ values }: { values: WeeklyWeightAverage[] }) {
   const first = values[0];
   const latest = values.at(-1) ?? first;
   const change = roundBodyMetric(latest.value - first.value);
@@ -386,28 +376,7 @@ function WeeklyAverageCard({
       <AppText variant="caption">
         Monday–Sunday weeks · {values.length} weeks · each average uses recorded readings only
       </AppText>
-      <View className="gap-1 border-t border-outline-soft pt-3">
-        <AppText variant="label" className="mb-1 uppercase tracking-wide text-plum">
-          Weekly details
-        </AppText>
-        {[...values].reverse().map((week) => (
-          <View
-            key={week.startDate}
-            accessibilityLabel={`${formatWeekSpan(week.startDate, week.endDate)}, average ${formatBodyMetric(week.value)} ${week.unit}, ${week.count} contributing ${week.count === 1 ? "day" : "days"}`}
-            className="flex-row items-center justify-between gap-3 rounded-xl px-2 py-2"
-          >
-            <View className="flex-1">
-              <AppText variant="label">{formatWeekSpan(week.startDate, week.endDate)}</AppText>
-              <AppText variant="caption">
-                {week.count} contributing {week.count === 1 ? "day" : "days"}
-              </AppText>
-            </View>
-            <AppText variant="label">
-              {formatBodyMetric(week.value)} {week.unit}
-            </AppText>
-          </View>
-        ))}
-      </View>
+      <WeeklyAverageEntries values={values} />
     </AppCard>
   );
 }

@@ -52,6 +52,11 @@ export default function LineChart({
   });
   const first = orderedValues[0];
   const latest = orderedValues.at(-1) ?? first;
+  const latestPoint = points.at(-1);
+  const labelsClose =
+    latestPoint && Math.abs(latest.value - first.value) > 0.000001
+      ? Math.abs(latestPoint.y - points[0].y) < 16
+      : false;
   const dayNumber = (value: string) => {
     const [year, month, day] = value.split("-").map(Number);
     return Math.floor(Date.UTC(year, month - 1, day) / 86_400_000);
@@ -59,7 +64,7 @@ export default function LineChart({
   const dayCount = Math.max(1, dayNumber(endDate) - dayNumber(startDate) + 1);
   const dateTicks = dateTickOffsets(dayCount).map((offset) => {
     const date = addDays(startDate, Math.min(offset, dayCount - 1));
-    const position = left + (offset / (dayCount - 1 || 1)) * (width - left - right);
+    const position = left + 5 + (offset / (dayCount - 1 || 1)) * (width - left - right - 10);
     return { date, position };
   });
   const accessibilityLabel = `${title} chart. ${values.length} recorded ${values.length === 1 ? "value" : "values"}. First: ${formatBodyMetric(first.value)} ${first.unit} on ${formatDate(first.date)}. Latest: ${formatBodyMetric(latest.value)} ${latest.unit} on ${formatDate(latest.date)}.`;
@@ -72,7 +77,7 @@ export default function LineChart({
       className="mt-2 h-[184px]"
       onLayout={(event) => setWidth(event.nativeEvent.layout.width)}
     >
-      {width ? (
+      {width > left + right ? (
         <Svg width={width} height={height}>
           <Defs>
             <LinearGradient id={`chartFill-${uniqueId}`} x1="0" y1="0" x2="0" y2="1">
@@ -202,7 +207,7 @@ export default function LineChart({
 
           <Text
             x={plot.left - 7}
-            y={points[0].y + 3.5}
+            y={points[0].y + (labelsClose ? -7 : 3.5)}
             textAnchor="end"
             fontSize={10}
             fontWeight="600"
@@ -213,7 +218,7 @@ export default function LineChart({
           {Math.abs(latest.value - first.value) > 0.000001 ? (
             <Text
               x={plot.left - 7}
-              y={(points.at(-1)?.y ?? top) + 3.5}
+              y={(latestPoint?.y ?? top) + (labelsClose ? 14 : 3.5)}
               textAnchor="end"
               fontSize={10}
               fontWeight="600"
@@ -223,9 +228,9 @@ export default function LineChart({
             </Text>
           ) : null}
           {dateTicks.map(({ date, position }, index) => {
-            const label = new Intl.DateTimeFormat("en-US", {
+            const label = new Intl.DateTimeFormat(undefined, {
               month: "short",
-              day: "numeric",
+              ...(dayCount > 90 ? { year: "numeric" as const } : { day: "numeric" as const }),
             }).format(fromIsoDate(date));
             return (
               <Fragment key={date}>

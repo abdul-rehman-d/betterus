@@ -82,8 +82,10 @@ export function formatChartValue(value: number) {
 }
 
 export function dateTickOffsets(days: number) {
-  if (days <= 7) return [0, 3, 6];
-  if (days <= 30) return [0, 7, 14, 21, 29];
-  if (days <= 90) return [0, 21, 42, 63, 89];
-  return [0, 90, 180, 270, 364];
+  const last = Math.max(0, days - 1);
+  const tickCount = Math.min(days, days <= 7 ? 3 : days <= 30 ? 4 : 5);
+  if (tickCount <= 1) return [0];
+  return Array.from({ length: tickCount }, (_, index) =>
+    Math.round((index / (tickCount - 1)) * last),
+  );
 }
