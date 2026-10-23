@@ -1,5 +1,5 @@
 import type { WeightUnit } from "@/lib/constants";
-import { addDays, fromIsoDate } from "@/lib/dates";
+import { addDays, fromIsoDate, mondayOfWeek } from "@/lib/dates";
 import { roundBodyMetric } from "@/lib/numbers";
 
 export type WeightReading = { date: string; value: number; unit: WeightUnit };
@@ -20,11 +20,6 @@ function convertWeight(value: number, from: WeightUnit, to: WeightUnit) {
   return from === "kg" ? value * KG_TO_LB : value / KG_TO_LB;
 }
 
-function mondayOf(date: string) {
-  const weekday = fromIsoDate(date).getDay();
-  return addDays(date, -((weekday + 6) % 7));
-}
-
 /**
  * Average recorded readings per Monday–Sunday week. Units are normalized before
  * averaging, weeks without readings are omitted, and partial weeks are retained.
@@ -35,7 +30,7 @@ export function buildWeeklyWeightAverages(
 ): WeeklyWeightAverage[] {
   const weeks = new Map<string, { total: number; count: number }>();
   for (const reading of readings) {
-    const startDate = mondayOf(reading.date);
+    const startDate = mondayOfWeek(reading.date);
     const bucket = weeks.get(startDate) ?? { total: 0, count: 0 };
     bucket.total += convertWeight(reading.value, reading.unit, displayUnit);
     bucket.count += 1;

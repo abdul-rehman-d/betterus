@@ -14,12 +14,18 @@ import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
 import PressableScale from "@/components/ui/pressable-scale";
 import SegmentedControl from "@/components/ui/segmented-control";
-import { ContentLoading, EmptyState, InlineError } from "@/components/ui/states";
+import { ContentLoading, EmptyState } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
 import { colors, type MeasurementKey, measurementLabel } from "@/lib/constants";
-import { addDays, formatDate, isSunday, startOfRange, toIsoDate } from "@/lib/dates";
+import {
+  addDays,
+  formatDate,
+  isSunday,
+  startOfRange,
+  startOfWeekRange,
+  toIsoDate,
+} from "@/lib/dates";
 import { formatBodyMetric, roundBodyMetric } from "@/lib/numbers";
-import { useAllTimeWeightReadings } from "@/hooks/use-all-time-weight-readings";
 import { buildWeeklyWeightAverages, type WeeklyWeightAverage } from "@/lib/weight-weekly-average";
 import { useSession } from "@/providers/session-provider";
 
@@ -35,6 +41,7 @@ export default function Progress() {
   const user = useQuery(api.users.get, userId ? { userId } : "skip");
   const [endDate, setEndDate] = useState(today);
   const startDate = startOfRange(endDate, Number(range));
+  const weeklyStartDate = startOfWeekRange(today, 30);
   const changeRange = (nextRange: Range) => {
     setRange(nextRange);
     setEndDate(today);
@@ -55,13 +62,13 @@ export default function Progress() {
     });
   const records = useQuery(
     api.dailyRecords.listProgress,
-    userId ? { userId, startDate, endDate } : "skip",
+    userId && weightView === "daily" ? { userId, startDate, endDate } : "skip",
   );
-  const allTime = useAllTimeWeightReadings(
-    userId,
-    today,
-    user?.weightUnit ?? null,
-    weightView === "weekly" && user !== undefined,
+  const weeklyRecords = useQuery(
+    api.dailyRecords.listProgress,
+    userId && weightView === "weekly"
+      ? { userId, startDate: weeklyStartDate, endDate: today }
+      : "skip",
   );
   const series = useMemo(() => {
     const weight = (records ?? []).flatMap((record) =>
@@ -85,13 +92,17 @@ export default function Progress() {
   const hasData = Boolean(series.weight.length || series.measurements.size);
   const weeklyAverages = useMemo(
     () =>
-      allTime.status === "ready"
-        ? buildWeeklyWeightAverages(allTime.readings, user?.weightUnit ?? "kg")
-        : [],
-    [allTime, user?.weightUnit],
+      buildWeeklyWeightAverages(
+        (weeklyRecords ?? []).flatMap((record) =>
+          record.weight
+            ? [{ date: record.date, value: record.weight.value, unit: record.weight.unit }]
+            : [],
+        ),
+        user?.weightUnit ?? "kg",
+      ),
+    [weeklyRecords, user?.weightUnit],
   );
-  const loadingWeekly =
-    weightView === "weekly" && (allTime.status === "loading" || user === undefined);
+  const loadingWeekly = weeklyRecords === undefined || user === undefined;
   const measurementEntries = useMemo(() => {
     const entries = Array.from(series.measurements.entries());
     const preferenceOrder = user?.measurementPreferences ?? [];
@@ -137,7 +148,7 @@ export default function Progress() {
           onChange={setWeightView}
           options={[
             { label: "Daily", value: "daily" },
-            { label: "Weekly average · All time", value: "weekly" },
+            { label: "Weekly average · 30 weeks", value: "weekly" },
           ]}
         />
       </View>
@@ -260,21 +271,19 @@ export default function Progress() {
       ) : (
         <>
           {loadingWeekly ? (
-            <ContentLoading label="Loading all-time weight history" variant="chart" />
+            <ContentLoading label="Loading 30 weeks of weight history" variant="chart" />
           ) : null}
-          {allTime.status === "error" ? (
-            <AppCard className="gap-3">
-              <InlineError message={allTime.message} />
-              <AppButton label="Try again" variant="secondary" onPress={allTime.retry} />
-            </AppCard>
-          ) : null}
-          {!loadingWeekly && allTime.status === "ready" ? (
+          {!loadingWeekly ? (
             weeklyAverages.length ? (
-              <WeeklyAverageCard values={weeklyAverages} />
+              <WeeklyAverageCard
+                values={weeklyAverages}
+                startDate={weeklyStartDate}
+                endDate={today}
+              />
             ) : (
               <EmptyState
-                title="No weight history yet"
-                body="Log a weight to start building your all-time weekly averages."
+                title="No weights in the last 30 weeks"
+                body="Log a weight to start building your weekly averages."
               />
             )
           ) : null}
@@ -343,7 +352,15 @@ function ChartCard({
   );
 }
 
-function WeeklyAverageCard({ values }: { values: WeeklyWeightAverage[] }) {
+function WeeklyAverageCard({
+  values,
+  startDate,
+  endDate,
+}: {
+  values: WeeklyWeightAverage[];
+  startDate: string;
+  endDate: string;
+}) {
   const first = values[0];
   const latest = values.at(-1) ?? first;
   const change = roundBodyMetric(latest.value - first.value);
@@ -352,7 +369,7 @@ function WeeklyAverageCard({ values }: { values: WeeklyWeightAverage[] }) {
       <View className="flex-row items-end justify-between">
         <View>
           <AppText variant="label" className="uppercase text-berry">
-            Weekly average · All time
+            Weekly average · 30 weeks
           </AppText>
           <View className="flex-row items-end gap-1">
             <AppText variant="metric">{formatBodyMetric(latest.value)}</AppText>
@@ -369,12 +386,12 @@ function WeeklyAverageCard({ values }: { values: WeeklyWeightAverage[] }) {
       <LineChart
         title="Weekly average weight"
         values={values}
-        startDate={first.date}
-        endDate={latest.endDate > toIsoDate(new Date()) ? toIsoDate(new Date()) : latest.endDate}
+        startDate={startDate}
+        endDate={endDate}
         maxGapDays={9}
       />
       <AppText variant="caption">
-        Monday–Sunday weeks · {values.length} weeks · each average uses recorded readings only
+        Monday–Sunday weeks · {values.length} with readings · missing weeks appear as gaps
       </AppText>
       <WeeklyAverageEntries values={values} />
     </AppCard>

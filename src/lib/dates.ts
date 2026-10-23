@@ -40,6 +40,14 @@ export function sundayOfWeek(value: string) {
   return addDays(value, -fromIsoDate(value).getDay());
 }
 
+export function mondayOfWeek(value: string) {
+  return addDays(value, -((fromIsoDate(value).getDay() + 6) % 7));
+}
+
+export function startOfWeekRange(end: string, weeks: number) {
+  return addDays(mondayOfWeek(end), -(weeks - 1) * 7);
+}
+
 export function weekAround(value: string) {
   return Array.from({ length: 7 }, (_, index) => addDays(value, index - 3));
 }

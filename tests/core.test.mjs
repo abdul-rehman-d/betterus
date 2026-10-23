@@ -11,7 +11,7 @@ import {
   todayInTimeZone,
 } from "../convex/lib.ts";
 import { buildChartGeometry, dateTickOffsets } from "../src/lib/chart.ts";
-import { calendarGrid, isSunday } from "../src/lib/dates.ts";
+import { calendarGrid, isSunday, startOfWeekRange } from "../src/lib/dates.ts";
 import { formatBodyMetric, roundBodyMetric } from "../src/lib/numbers.ts";
 import { buildWeeklyWeightAverages } from "../src/lib/weight-weekly-average.ts";
 
@@ -87,7 +87,7 @@ test("chart geometry handles empty, single, and gapped series", () => {
   assert.ok(gapped.points[0].x < gapped.points[1].x);
 });
 
-test("date ticks span the selected range, including all-time ranges", () => {
+test("date ticks span the selected range, including long ranges", () => {
   assert.deepEqual(dateTickOffsets(7), [0, 3, 6]);
   assert.equal(dateTickOffsets(30).at(-1), 29);
   assert.equal(dateTickOffsets(1100).at(-1), 1099);
@@ -109,4 +109,9 @@ test("weekly weight averages use Monday–Sunday weeks and include partial weeks
       { startDate: "2026-10-12", count: 1, value: 75 },
     ],
   );
+});
+
+test("30-week range starts on Monday and stays within 210 days", () => {
+  assert.equal(startOfWeekRange("2026-10-19", 30), "2026-03-30");
+  assert.equal(startOfWeekRange("2026-10-25", 30), "2026-03-30");
 });
