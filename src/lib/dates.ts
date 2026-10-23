@@ -36,6 +36,10 @@ export function isSunday(value: string) {
   return fromIsoDate(value).getDay() === 0;
 }
 
+export function sundayOfWeek(value: string) {
+  return addDays(value, -fromIsoDate(value).getDay());
+}
+
 export function weekAround(value: string) {
   return Array.from({ length: 7 }, (_, index) => addDays(value, index - 3));
 }

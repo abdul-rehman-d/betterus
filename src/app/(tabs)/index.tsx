@@ -10,8 +10,8 @@ import AppText from "@/components/ui/app-text";
 import PressableScale from "@/components/ui/pressable-scale";
 import { ContentLoading } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
-import { colors } from "@/lib/constants";
-import { formatDate, isSunday, toIsoDate } from "@/lib/dates";
+import { colors, measurementLabel } from "@/lib/constants";
+import { formatDate, sundayOfWeek, toIsoDate } from "@/lib/dates";
 import { formatBodyMetric } from "@/lib/numbers";
 import { useSession } from "@/providers/session-provider";
 
@@ -20,9 +20,14 @@ export default function Home() {
   const params = useLocalSearchParams<{ date?: string }>();
   const today = toIsoDate(new Date());
   const selectedDate = params.date && params.date <= today ? params.date : today;
+  const measurementDate = sundayOfWeek(selectedDate);
   const record = useQuery(
     api.dailyRecords.getByDate,
     userId ? { userId, date: selectedDate } : "skip",
+  );
+  const weeklyRecord = useQuery(
+    api.dailyRecords.getByDate,
+    userId ? { userId, date: measurementDate } : "skip",
   );
   const loading = !userId || record === undefined;
 
@@ -96,26 +101,40 @@ export default function Home() {
           </LinearGradient>
         </AppCard>
       ) : null}
-      {!loading && isSunday(selectedDate) ? (
+      {!loading && weeklyRecord !== undefined ? (
         <AppCard className="gap-5 border-petal bg-petal-soft">
           <View className="flex-row items-center gap-4">
             <View className="h-14 w-14 items-center justify-center rounded-[20px] bg-white">
               <MaterialCommunityIcons name="tape-measure" size={29} color={colors.berry} />
             </View>
             <View className="flex-1">
-              <AppText variant="subtitle">Sunday measurements</AppText>
+              <AppText variant="subtitle">
+                {weeklyRecord?.measurements.length ? "Last recorded" : "Weekly measurements"}
+              </AppText>
               <AppText>
-                {record?.measurements.length
-                  ? `${record.measurements.length} values logged`
-                  : "Your weekly body check-in"}
+                {weeklyRecord?.measurements.length
+                  ? formatDate(measurementDate, { day: "numeric", month: "long", year: "numeric" })
+                  : `For the week of ${formatDate(measurementDate, { day: "numeric", month: "long" })}`}
               </AppText>
             </View>
           </View>
+          {weeklyRecord?.measurements.length ? (
+            <View className="gap-1 rounded-2xl bg-white/80 p-4">
+              {weeklyRecord.measurements.map((measurement) => (
+                <View key={measurement.key} className="flex-row items-center justify-between">
+                  <AppText>{measurementLabel(measurement.key)}</AppText>
+                  <AppText variant="label">
+                    {formatBodyMetric(measurement.value)} {measurement.unit}
+                  </AppText>
+                </View>
+              ))}
+            </View>
+          ) : null}
           <AppButton
-            label={record?.measurements.length ? "Edit measurements" : "Add measurements"}
-            icon={record?.measurements.length ? "pencil-outline" : "plus"}
+            label={weeklyRecord?.measurements.length ? "Edit measurements" : "Add measurements"}
+            icon={weeklyRecord?.measurements.length ? "pencil-outline" : "plus"}
             onPress={() =>
-              router.push({ pathname: "/(modals)/measurements", params: { date: selectedDate } })
+              router.push({ pathname: "/(modals)/measurements", params: { date: measurementDate } })
             }
           />
         </AppCard>
