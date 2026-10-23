@@ -94,6 +94,9 @@ function MeasurementsForm({
     <AppScreen inSheet>
       <PageHeader close title="Sunday measurements" />
       <AppText>{formatDate(date)}</AppText>
+      <AppText variant="caption">
+        This week’s measurements are saved to Sunday, even if you’re checking in later.
+      </AppText>
       <form.Field name="unit">
         {(field) => (
           <SegmentedControl<MeasurementUnit>
