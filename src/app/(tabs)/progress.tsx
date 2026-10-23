@@ -2,6 +2,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useQuery } from "convex/react";
 import { useMemo, useState } from "react";
 import { View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import LineChart from "@/components/progress/line-chart";
 import AppCard from "@/components/ui/app-card";
 import AppScreen from "@/components/ui/app-screen";
@@ -10,7 +11,7 @@ import SegmentedControl from "@/components/ui/segmented-control";
 import { ContentLoading, EmptyState } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
 import { colors, type MeasurementKey, measurementLabel } from "@/lib/constants";
-import { startOfRange, toIsoDate } from "@/lib/dates";
+import { addDays, formatDate, startOfRange, toIsoDate } from "@/lib/dates";
 import { formatBodyMetric, roundBodyMetric } from "@/lib/numbers";
 import { useSession } from "@/providers/session-provider";
 
@@ -19,9 +20,29 @@ export default function Progress() {
   const { userId } = useSession();
   const [range, setRange] = useState<Range>("30");
   const today = toIsoDate(new Date());
+  const [endDate, setEndDate] = useState(today);
+  const startDate = startOfRange(endDate, Number(range));
+  const changeRange = (nextRange: Range) => {
+    setRange(nextRange);
+    setEndDate(today);
+  };
+  const moveWindow = (direction: -1 | 1) => {
+    setEndDate((currentEnd) => {
+      const shiftedEnd = addDays(currentEnd, direction * Number(range));
+      return direction > 0 && shiftedEnd > today ? today : shiftedEnd;
+    });
+  };
+  const swipe = Gesture.Pan()
+    .activeOffsetX([-18, 18])
+    .failOffsetY([-12, 12])
+    .runOnJS(true)
+    .onEnd((event) => {
+      if (Math.abs(event.translationX) < 56 && Math.abs(event.velocityX) < 500) return;
+      moveWindow(event.translationX < 0 ? -1 : 1);
+    });
   const records = useQuery(
     api.dailyRecords.listProgress,
-    userId ? { userId, startDate: startOfRange(today, Number(range)), endDate: today } : "skip",
+    userId ? { userId, startDate, endDate } : "skip",
   );
   const series = useMemo(() => {
     const weight = (records ?? []).flatMap((record) =>
@@ -63,7 +84,7 @@ export default function Progress() {
       </View>
       <SegmentedControl<Range>
         value={range}
-        onChange={setRange}
+        onChange={changeRange}
         options={[
           { label: "7 days", value: "7" },
           { label: "30 days", value: "30" },
@@ -71,21 +92,39 @@ export default function Progress() {
           { label: "1 year", value: "365" },
         ]}
       />
-      {loading ? <ContentLoading label="Loading progress graphs" variant="chart" /> : null}
-      {!loading && !hasData ? (
-        <EmptyState
-          title="Your trends will appear here"
-          body="Add weight or Sunday measurements to build an honest view of your progress."
-        />
-      ) : null}
-      {!loading && series.weight.length ? (
-        <ChartCard title="Weight" values={series.weight} />
-      ) : null}
-      {!loading
-        ? Array.from(series.measurements.entries()).map(([key, values]) => (
-            <ChartCard key={key} title={measurementLabel(key)} values={values} />
-          ))
-        : null}
+      <GestureDetector gesture={swipe}>
+        <View
+          accessibilityRole="adjustable"
+          accessibilityLabel={`${range} day progress, ${formatDate(startDate)} to ${formatDate(endDate)}`}
+          accessibilityActions={[
+            { name: "decrement", label: "Earlier period" },
+            { name: "increment", label: "Later period" },
+          ]}
+          onAccessibilityAction={(event) =>
+            moveWindow(event.nativeEvent.actionName === "decrement" ? -1 : 1)
+          }
+        >
+          <AppText variant="caption" className="text-center">
+            {formatDate(startDate, { month: "short", day: "numeric", year: "numeric" })} –{" "}
+            {formatDate(endDate, { month: "short", day: "numeric", year: "numeric" })}
+          </AppText>
+          {loading ? <ContentLoading label="Loading progress graphs" variant="chart" /> : null}
+          {!loading && !hasData ? (
+            <EmptyState
+              title="Your trends will appear here"
+              body="Add weight or Sunday measurements to build an honest view of your progress."
+            />
+          ) : null}
+          {!loading && series.weight.length ? (
+            <ChartCard title="Weight" values={series.weight} />
+          ) : null}
+          {!loading
+            ? Array.from(series.measurements.entries()).map(([key, values]) => (
+                <ChartCard key={key} title={measurementLabel(key)} values={values} />
+              ))
+            : null}
+        </View>
+      </GestureDetector>
     </AppScreen>
   );
 }
