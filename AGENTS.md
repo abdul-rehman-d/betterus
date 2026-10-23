@@ -62,6 +62,12 @@ Target: a refined, production-quality mobile interface, not a functional wirefra
 
 This project uses [Convex](https://convex.dev) as its backend.
 
+Before changing the Convex schema, any query, or any mutation, ask the developer
+clarifying questions about the intended behavior and data impact. Do not assume
+the requirements or proceed with those changes until the developer answers.
+If a change requires modifying the database, obtain the developer's explicit
+approval before making the change or running a migration.
+
 When working on Convex code, **always read
 `convex/_generated/ai/guidelines.md` first** for important guidelines on
 how to correctly use Convex APIs and patterns. The file contains rules that
