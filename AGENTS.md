@@ -1,5 +1,10 @@
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
+## Branches and worktrees
+
+- When asked to work on a new branch in a worktree, create a sibling Git worktree beside this `main` checkout. For example, put branch `feat/dark-mode` at `../feat_dark-mode`. Do not nest a worktree inside `main`.
+- Do not build or bundle the Expo app from a feature worktree. Run Expo app builds, prebuilds, native runs, and the Metro dev server only from the `main` checkout. Editing, linting, and typechecking in feature worktrees are allowed.
+
 ## Expo has changed — do not trust your training data
 
 Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:
