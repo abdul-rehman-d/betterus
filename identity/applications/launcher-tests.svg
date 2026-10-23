@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1440" viewBox="0 0 1440 1440" role="img" aria-labelledby="title desc">
-  <title id="title">BetterUs launcher icon stress tests</title>
-  <desc id="desc">The BetterUs icon shown through iOS, Android circle, Android squircle, monochrome, and small-size contexts.</desc>
+  <title id="title">BetterYou launcher icon stress tests</title>
+  <desc id="desc">The BetterYou icon shown through iOS, Android circle, Android squircle, monochrome, and small-size contexts.</desc>
   <defs>
     <linearGradient id="page" x1="0" y1="0" x2="1440" y2="900" gradientUnits="userSpaceOnUse">
       <stop stop-color="#FFF9FA"/>
@@ -23,7 +23,7 @@
     <clipPath id="squircle"><rect x="680" y="190" width="260" height="260" rx="82"/></clipPath>
   </defs>
   <rect width="1440" height="1440" fill="url(#page)"/>
-  <text x="80" y="86" fill="#2A131E" font-family="Epilogue, Arial, sans-serif" font-size="42" font-weight="700">BetterUs launcher tests</text>
+  <text x="80" y="86" fill="#2A131E" font-family="Epilogue, Arial, sans-serif" font-size="42" font-weight="700">BetterYou launcher tests</text>
   <text x="80" y="128" fill="#765F68" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="20">iOS, Android masks, themed icon, and true small-size checks</text>
 
   <g clip-path="url(#ios)">
@@ -78,13 +78,13 @@
     <path fill="none" stroke="#2A131E" stroke-width="28" stroke-linecap="round" d="M48 65v66c0 53 31 82 80 82s80-32 80-84V49"/>
     <path fill="none" stroke="#B51E52" stroke-width="28" stroke-linecap="round" d="M91 92v39c0 27 14 43 37 43s37-18 37-45V77"/>
   </g>
-  <text x="730" y="724" fill="#2A131E" font-family="Epilogue, Arial, sans-serif" font-size="30" font-weight="700">BetterUs</text>
+  <text x="730" y="724" fill="#2A131E" font-family="Epilogue, Arial, sans-serif" font-size="30" font-weight="700">BetterYou</text>
   <text x="730" y="757" fill="#765F68" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="16">Symbol + live product typography</text>
   <rect x="80" y="875" width="1280" height="400" rx="38" fill="#2A131E"/>
   <text x="120" y="950" fill="#FFD7E4" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="16" font-weight="700" letter-spacing="1">SYSTEM CHECK</text>
   <text x="120" y="1015" fill="#FFF9FA" font-family="Epilogue, Arial, sans-serif" font-size="30" font-weight="700">One shape, every launcher context.</text>
   <text x="120" y="1065" fill="#EAD7DE" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="19">The paired paths stay distinct through circular, squircle, tinted, and 32 px treatments.</text>
-  <circle cx="140" cy="1160" r="20" fill="#B51E52"/><text x="176" y="1167" fill="#FFF9FA" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18">BetterUs Berry</text>
+  <circle cx="140" cy="1160" r="20" fill="#B51E52"/><text x="176" y="1167" fill="#FFF9FA" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18">BetterYou Berry</text>
   <circle cx="390" cy="1160" r="20" fill="#D94B7C"/><text x="426" y="1167" fill="#FFF9FA" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18">Berry Light</text>
   <circle cx="620" cy="1160" r="20" fill="#FFD7E4"/><text x="656" y="1167" fill="#FFF9FA" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18">Petal</text>
   <circle cx="810" cy="1160" r="20" fill="#FFF9FA"/><text x="846" y="1167" fill="#FFF9FA" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="18">Warm White</text>
