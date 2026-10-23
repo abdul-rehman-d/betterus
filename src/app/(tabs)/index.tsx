@@ -3,6 +3,7 @@ import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { View } from "react-native";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import AppButton from "@/components/ui/app-button";
 import AppCard from "@/components/ui/app-card";
 import AppScreen from "@/components/ui/app-screen";
@@ -11,7 +12,7 @@ import PressableScale from "@/components/ui/pressable-scale";
 import { ContentLoading } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
 import { colors } from "@/lib/constants";
-import { formatDate, isSunday, toIsoDate } from "@/lib/dates";
+import { addDays, formatDate, isSunday, toIsoDate } from "@/lib/dates";
 import { formatBodyMetric } from "@/lib/numbers";
 import { useSession } from "@/providers/session-provider";
 
@@ -20,11 +21,24 @@ export default function Home() {
   const params = useLocalSearchParams<{ date?: string }>();
   const today = toIsoDate(new Date());
   const selectedDate = params.date && params.date <= today ? params.date : today;
+  const moveDay = (amount: number) => {
+    const nextDate = amount > 0 && selectedDate >= today ? today : addDays(selectedDate, amount);
+    router.setParams({ date: nextDate });
+  };
+  const swipe = Gesture.Pan()
+    .activeOffsetX([-18, 18])
+    .failOffsetY([-12, 12])
+    .runOnJS(true)
+    .onEnd((event) => {
+      if (Math.abs(event.translationX) < 56 && Math.abs(event.velocityX) < 500) return;
+      moveDay(event.translationX < 0 ? -1 : 1);
+    });
   const record = useQuery(
     api.dailyRecords.getByDate,
     userId ? { userId, date: selectedDate } : "skip",
   );
-  const loading = !userId || record === undefined;
+  const loading =
+    !userId || record === undefined || (record !== null && record.date !== selectedDate);
 
   return (
     <AppScreen bottomInset={false}>
@@ -66,63 +80,80 @@ export default function Home() {
           </AppText>
         </View>
       </View>
-      {loading ? <ContentLoading label="Loading daily log" /> : null}
-      {!loading ? (
-        <AppCard flush className="overflow-hidden">
-          <LinearGradient colors={["#FFFFFF", "#FFF3F7"]} style={{ gap: 20, padding: 20 }}>
-            <View className="flex-row items-center gap-4">
-              <View className="h-16 w-16 items-center justify-center rounded-[22px] bg-petal-soft">
-                <MaterialCommunityIcons name="scale-bathroom" size={30} color={colors.berry} />
-              </View>
-              <View className="flex-1">
-                <AppText variant="label">Weight</AppText>
-                {record?.weight ? (
-                  <View className="flex-row items-end gap-1">
-                    <AppText variant="metric">{formatBodyMetric(record.weight.value)}</AppText>
-                    <AppText className="mb-1">{record.weight.unit}</AppText>
+      <GestureDetector gesture={swipe}>
+        <View
+          accessibilityRole="adjustable"
+          accessibilityLabel={`Daily log for ${formatDate(selectedDate)}`}
+          accessibilityActions={[
+            { name: "decrement", label: "Previous day" },
+            { name: "increment", label: "Next day" },
+          ]}
+          onAccessibilityAction={(event) =>
+            moveDay(event.nativeEvent.actionName === "decrement" ? -1 : 1)
+          }
+        >
+          {loading ? <ContentLoading label="Loading daily log" /> : null}
+          {!loading ? (
+            <AppCard flush className="overflow-hidden">
+              <LinearGradient colors={["#FFFFFF", "#FFF3F7"]} style={{ gap: 20, padding: 20 }}>
+                <View className="flex-row items-center gap-4">
+                  <View className="h-16 w-16 items-center justify-center rounded-[22px] bg-petal-soft">
+                    <MaterialCommunityIcons name="scale-bathroom" size={30} color={colors.berry} />
                   </View>
-                ) : (
-                  <AppText className="mt-1">No weight logged yet</AppText>
-                )}
+                  <View className="flex-1">
+                    <AppText variant="label">Weight</AppText>
+                    {record?.weight ? (
+                      <View className="flex-row items-end gap-1">
+                        <AppText variant="metric">{formatBodyMetric(record.weight.value)}</AppText>
+                        <AppText className="mb-1">{record.weight.unit}</AppText>
+                      </View>
+                    ) : (
+                      <AppText className="mt-1">No weight logged yet</AppText>
+                    )}
+                  </View>
+                </View>
+                <AppButton
+                  label={record?.weight ? "Edit weight" : "Add weight"}
+                  icon={record?.weight ? "pencil-outline" : "plus"}
+                  onPress={() =>
+                    router.push({ pathname: "/(modals)/weight", params: { date: selectedDate } })
+                  }
+                />
+              </LinearGradient>
+            </AppCard>
+          ) : null}
+          {!loading && isSunday(selectedDate) ? (
+            <AppCard className="gap-5 border-petal bg-petal-soft">
+              <View className="flex-row items-center gap-4">
+                <View className="h-14 w-14 items-center justify-center rounded-[20px] bg-white">
+                  <MaterialCommunityIcons name="tape-measure" size={29} color={colors.berry} />
+                </View>
+                <View className="flex-1">
+                  <AppText variant="subtitle">Sunday measurements</AppText>
+                  <AppText>
+                    {record?.measurements.length
+                      ? `${record.measurements.length} values logged`
+                      : "Your weekly body check-in"}
+                  </AppText>
+                </View>
               </View>
-            </View>
-            <AppButton
-              label={record?.weight ? "Edit weight" : "Add weight"}
-              icon={record?.weight ? "pencil-outline" : "plus"}
-              onPress={() =>
-                router.push({ pathname: "/(modals)/weight", params: { date: selectedDate } })
-              }
-            />
-          </LinearGradient>
-        </AppCard>
-      ) : null}
-      {!loading && isSunday(selectedDate) ? (
-        <AppCard className="gap-5 border-petal bg-petal-soft">
-          <View className="flex-row items-center gap-4">
-            <View className="h-14 w-14 items-center justify-center rounded-[20px] bg-white">
-              <MaterialCommunityIcons name="tape-measure" size={29} color={colors.berry} />
-            </View>
-            <View className="flex-1">
-              <AppText variant="subtitle">Sunday measurements</AppText>
-              <AppText>
-                {record?.measurements.length
-                  ? `${record.measurements.length} values logged`
-                  : "Your weekly body check-in"}
-              </AppText>
-            </View>
-          </View>
-          <AppButton
-            label={record?.measurements.length ? "Edit measurements" : "Add measurements"}
-            icon={record?.measurements.length ? "pencil-outline" : "plus"}
-            onPress={() =>
-              router.push({ pathname: "/(modals)/measurements", params: { date: selectedDate } })
-            }
-          />
-        </AppCard>
-      ) : null}
+              <AppButton
+                label={record?.measurements.length ? "Edit measurements" : "Add measurements"}
+                icon={record?.measurements.length ? "pencil-outline" : "plus"}
+                onPress={() =>
+                  router.push({
+                    pathname: "/(modals)/measurements",
+                    params: { date: selectedDate },
+                  })
+                }
+              />
+            </AppCard>
+          ) : null}
+        </View>
+      </GestureDetector>
     </AppScreen>
   );
 }
 function fromRelative(date: string) {
-  return date === toIsoDate(new Date(Date.now() - 86400000)) ? "Yesterday" : "Selected";
+  return date === addDays(toIsoDate(new Date()), -1) ? "Yesterday" : "Selected";
 }
