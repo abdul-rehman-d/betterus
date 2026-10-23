@@ -3,6 +3,7 @@ import { useQuery } from "convex/react";
 import { useMemo, useState } from "react";
 import { View } from "react-native";
 import LineChart from "@/components/progress/line-chart";
+import ProgressEntries from "@/components/progress/progress-entries";
 import AppCard from "@/components/ui/app-card";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
@@ -152,6 +153,7 @@ function ChartCard({
         endDate={endDate}
         maxGapDays={maxGapDays}
       />
+      <ProgressEntries title={title} values={orderedValues} />
       <AppText variant="caption">
         {values.length === 1
           ? "One entry in this range"
