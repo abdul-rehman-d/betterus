@@ -79,11 +79,24 @@ export default function Progress() {
         />
       ) : null}
       {!loading && series.weight.length ? (
-        <ChartCard title="Weight" values={series.weight} />
+        <ChartCard
+          title="Weight"
+          values={series.weight}
+          startDate={startOfRange(today, Number(range))}
+          endDate={today}
+          maxGapDays={1.5}
+        />
       ) : null}
       {!loading
         ? Array.from(series.measurements.entries()).map(([key, values]) => (
-            <ChartCard key={key} title={measurementLabel(key)} values={values} />
+            <ChartCard
+              key={key}
+              title={measurementLabel(key)}
+              values={values}
+              startDate={startOfRange(today, Number(range))}
+              endDate={today}
+              maxGapDays={9}
+            />
           ))
         : null}
     </AppScreen>
@@ -92,12 +105,19 @@ export default function Progress() {
 function ChartCard({
   title,
   values,
+  startDate,
+  endDate,
+  maxGapDays,
 }: {
   title: string;
   values: Array<{ date: string; value: number; unit: string }>;
+  startDate: string;
+  endDate: string;
+  maxGapDays: number;
 }) {
-  const first = values[0];
-  const latest = values.at(-1) ?? first;
+  const orderedValues = [...values].sort((a, b) => a.date.localeCompare(b.date));
+  const first = orderedValues[0];
+  const latest = orderedValues.at(-1) ?? first;
   const change = roundBodyMetric(latest.value - first.value);
   return (
     <AppCard className="gap-2 overflow-hidden">
@@ -125,7 +145,13 @@ function ChartCard({
           </AppText>
         </View>
       </View>
-      <LineChart values={values} />
+      <LineChart
+        title={title}
+        values={orderedValues}
+        startDate={startDate}
+        endDate={endDate}
+        maxGapDays={maxGapDays}
+      />
       <AppText variant="caption">
         {values.length === 1
           ? "One entry in this range"
