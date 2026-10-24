@@ -7,6 +7,7 @@ import Animated, { FadeInDown, useReducedMotion } from "react-native-reanimated"
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import LineChart from "@/components/progress/line-chart";
 import ProgressEntries from "@/components/progress/progress-entries";
+import MeasurementEntries from "@/components/progress/measurement-entries";
 import WeeklyAverageEntries from "@/components/progress/weekly-average-entries";
 import AppButton from "@/components/ui/app-button";
 import AppCard from "@/components/ui/app-card";
@@ -58,7 +59,7 @@ export default function Progress() {
     .runOnJS(true)
     .onEnd((event) => {
       if (Math.abs(event.translationX) < 56 && Math.abs(event.velocityX) < 500) return;
-      moveWindow(event.translationX < 0 ? -1 : 1);
+      moveWindow(event.translationX > 0 ? -1 : 1);
     });
   const records = useQuery(
     api.dailyRecords.listProgress,
@@ -148,7 +149,7 @@ export default function Progress() {
           onChange={setWeightView}
           options={[
             { label: "Daily", value: "daily" },
-            { label: "Weekly average · 30 weeks", value: "weekly" },
+            { label: "Weekly Average", value: "weekly" },
           ]}
         />
       </View>
@@ -166,6 +167,7 @@ export default function Progress() {
           />
           <GestureDetector gesture={swipe}>
             <View
+              className="gap-5"
               accessibilityRole="adjustable"
               accessibilityLabel={`${range} day progress, ${formatDate(startDate)} to ${formatDate(endDate)}`}
               accessibilityActions={[
@@ -231,16 +233,24 @@ export default function Progress() {
                       className="gap-4"
                     >
                       {measurementEntries.length ? (
-                        measurementEntries.map(([key, values]) => (
-                          <ChartCard
-                            key={key}
-                            title={measurementLabel(key)}
-                            values={values}
-                            startDate={startDate}
-                            endDate={endDate}
-                            maxGapDays={9}
+                        <>
+                          <MeasurementEntries
+                            values={measurementEntries.flatMap(([key, values]) =>
+                              values.map((value) => ({ key, ...value })),
+                            )}
                           />
-                        ))
+                          {measurementEntries.map(([key, values]) => (
+                            <ChartCard
+                              key={key}
+                              title={measurementLabel(key)}
+                              values={values}
+                              startDate={startDate}
+                              endDate={endDate}
+                              maxGapDays={9}
+                              showEntries={false}
+                            />
+                          ))}
+                        </>
                       ) : (
                         <View className="gap-3 rounded-2xl bg-petal-soft/60 p-4">
                           <AppText variant="subtitle">No measurements in this range</AppText>
@@ -269,7 +279,10 @@ export default function Progress() {
           </GestureDetector>
         </>
       ) : (
-        <>
+        <View className="gap-5">
+          <AppText variant="caption" className="text-center">
+            30 weeks
+          </AppText>
           {loadingWeekly ? (
             <ContentLoading label="Loading 30 weeks of weight history" variant="chart" />
           ) : null}
@@ -287,7 +300,7 @@ export default function Progress() {
               />
             )
           ) : null}
-        </>
+        </View>
       )}
     </AppScreen>
   );
@@ -298,12 +311,14 @@ function ChartCard({
   startDate,
   endDate,
   maxGapDays,
+  showEntries = true,
 }: {
   title: string;
   values: Array<{ date: string; value: number; unit: string }>;
   startDate: string;
   endDate: string;
   maxGapDays: number;
+  showEntries?: boolean;
 }) {
   const orderedValues = [...values].sort((a, b) => a.date.localeCompare(b.date));
   const first = orderedValues[0];
@@ -342,7 +357,7 @@ function ChartCard({
         endDate={endDate}
         maxGapDays={maxGapDays}
       />
-      <ProgressEntries title={title} values={orderedValues} />
+      {showEntries ? <ProgressEntries title={title} values={orderedValues} /> : null}
       <AppText variant="caption">
         {values.length === 1
           ? "One entry in this range"
@@ -369,7 +384,7 @@ function WeeklyAverageCard({
       <View className="flex-row items-end justify-between">
         <View>
           <AppText variant="label" className="uppercase text-berry">
-            Weekly average · 30 weeks
+            Weekly average
           </AppText>
           <View className="flex-row items-end gap-1">
             <AppText variant="metric">{formatBodyMetric(latest.value)}</AppText>

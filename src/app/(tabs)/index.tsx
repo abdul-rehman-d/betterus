@@ -32,7 +32,7 @@ export default function Home() {
     .runOnJS(true)
     .onEnd((event) => {
       if (Math.abs(event.translationX) < 56 && Math.abs(event.velocityX) < 500) return;
-      moveDay(event.translationX < 0 ? -1 : 1);
+      moveDay(event.translationX > 0 ? -1 : 1);
     });
   const record = useQuery(
     api.dailyRecords.getByDate,
@@ -91,6 +91,7 @@ export default function Home() {
       </View>
       <GestureDetector gesture={swipe}>
         <View
+          className="gap-5"
           accessibilityRole="adjustable"
           accessibilityLabel={`Daily log for ${formatDate(selectedDate)}`}
           accessibilityActions={[
@@ -181,6 +182,10 @@ export default function Home() {
           ) : null}
         </View>
       </GestureDetector>
+      <View className="flex-row items-center justify-center gap-2 py-2">
+        <MaterialCommunityIcons name="gesture-swipe-right" size={18} color={colors.muted} />
+        <AppText variant="caption">Swipe right to see the previous day</AppText>
+      </View>
     </AppScreen>
   );
 }
