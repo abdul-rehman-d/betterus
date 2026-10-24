@@ -11,20 +11,23 @@ import Animated, {
   withRepeat,
   withTiming,
 } from "react-native-reanimated";
-import { colors, shadows } from "@/lib/constants";
+import useAppColors from "@/hooks/use-app-colors";
+import { shadows } from "@/lib/constants";
 import AppCard from "./app-card";
 import AppText from "./app-text";
 export function LoadingState({ label = "Loading…" }: { label?: string }) {
+  const palette = useAppColors();
   return (
     <Animated.View
       entering={FadeIn.duration(250)}
-      className="flex-1 items-center justify-center gap-4 bg-blush px-8"
+      className="flex-1 items-center justify-center gap-4 px-8"
+      style={{ backgroundColor: palette.background }}
     >
       <View
-        className="h-16 w-16 items-center justify-center rounded-3xl bg-white"
-        style={styles.card}
+        className="h-16 w-16 items-center justify-center rounded-3xl"
+        style={[styles.card, { backgroundColor: palette.white }]}
       >
-        <ActivityIndicator color={colors.berry} />
+        <ActivityIndicator color={palette.berry} />
       </View>
       <AppText className="text-center">{label}</AppText>
     </Animated.View>
@@ -96,14 +99,15 @@ export function EmptyState({
   title: string;
   body: string;
 }) {
+  const palette = useAppColors();
   return (
     <Animated.View
       entering={FadeInDown.duration(380)}
-      className="items-center gap-3 rounded-card border border-white bg-white p-8"
-      style={styles.card}
+      className="items-center gap-3 rounded-card border p-8"
+      style={[styles.card, { backgroundColor: palette.white, borderColor: palette.outlineSoft }]}
     >
       <View className="h-16 w-16 items-center justify-center rounded-3xl bg-petal-soft">
-        <MaterialCommunityIcons name={icon} size={31} color={colors.berry} />
+        <MaterialCommunityIcons name={icon} size={31} color={palette.berry} />
       </View>
       <AppText variant="subtitle" className="text-center">
         {title}
@@ -113,9 +117,10 @@ export function EmptyState({
   );
 }
 export function InlineError({ message }: { message: string | null }) {
+  const palette = useAppColors();
   return message ? (
     <View className="flex-row items-center gap-2 rounded-2xl bg-danger-soft px-4 py-3">
-      <MaterialCommunityIcons name="alert-circle-outline" size={19} color={colors.danger} />
+      <MaterialCommunityIcons name="alert-circle-outline" size={19} color={palette.danger} />
       <AppText accessibilityRole="alert" className="flex-1 text-danger">
         {message}
       </AppText>

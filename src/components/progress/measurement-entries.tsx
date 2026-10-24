@@ -10,6 +10,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import AppText from "@/components/ui/app-text";
 import PressableScale from "@/components/ui/pressable-scale";
+import useAppColors from "@/hooks/use-app-colors";
 import { colors, type MeasurementKey, measurementLabel, shadows } from "@/lib/constants";
 import { formatDate } from "@/lib/dates";
 import { formatBodyMetric } from "@/lib/numbers";
@@ -21,6 +22,7 @@ type MeasurementEntry = {
   unit: string;
 };
 export default function MeasurementEntries({ values }: { values: MeasurementEntry[] }) {
+  const palette = useAppColors();
   const sheetRef = useRef<BottomSheetModal>(null);
   const [filter, setFilter] = useState<MeasurementKey>(values[0]?.key ?? "waist");
   const [filterExpanded, setFilterExpanded] = useState(false);
@@ -47,7 +49,7 @@ export default function MeasurementEntries({ values }: { values: MeasurementEntr
   );
   const renderEntry = useCallback(
     ({ item }: { item: MeasurementEntry }) => (
-      <View className="flex-row items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3.5">
+      <View className="flex-row items-center justify-between gap-3 rounded-2xl bg-surface px-4 py-3.5">
         <View className="flex-1 gap-0.5">
           <AppText variant="label">{measurementLabel(item.key)}</AppText>
           <AppText variant="caption">{formatDate(item.date)}</AppText>
@@ -74,7 +76,7 @@ export default function MeasurementEntries({ values }: { values: MeasurementEntr
           sheetRef.current?.present();
         }}
       >
-        <MaterialCommunityIcons name="format-list-bulleted" size={18} color={colors.berry} />
+        <MaterialCommunityIcons name="format-list-bulleted" size={18} color={palette.berry} />
         <AppText variant="label" className="text-berry">
           View measurement entries
         </AppText>
@@ -85,8 +87,8 @@ export default function MeasurementEntries({ values }: { values: MeasurementEntr
         snapPoints={["72%", "94%"]}
         backdropComponent={renderBackdrop}
         enableDynamicSizing={false}
-        backgroundStyle={styles.background}
-        handleIndicatorStyle={styles.handle}
+        backgroundStyle={[styles.background, { backgroundColor: palette.background }]}
+        handleIndicatorStyle={[styles.handle, { backgroundColor: palette.outline }]}
       >
         <View className="flex-row items-center justify-between px-5 pb-3 pt-1">
           <View className="flex-1 gap-1">
@@ -98,9 +100,9 @@ export default function MeasurementEntries({ values }: { values: MeasurementEntr
             accessibilityLabel="Close measurement entries"
             hitSlop={12}
             onPress={() => sheetRef.current?.dismiss()}
-            className="h-10 w-10 items-center justify-center rounded-full bg-white"
+            className="h-10 w-10 items-center justify-center rounded-full bg-surface"
           >
-            <MaterialCommunityIcons name="close" size={20} color={colors.berry} />
+            <MaterialCommunityIcons name="close" size={20} color={palette.berry} />
           </Pressable>
         </View>
         <View className="px-5 pb-3">
@@ -108,20 +110,20 @@ export default function MeasurementEntries({ values }: { values: MeasurementEntr
             accessibilityRole="button"
             accessibilityState={{ expanded: filterExpanded }}
             accessibilityLabel={`Filter measurements: ${measurementLabel(selectedFilter)}`}
-            className="min-h-11 flex-row items-center justify-between rounded-2xl border border-outline-soft bg-white px-4"
+            className="min-h-11 flex-row items-center justify-between rounded-2xl border border-outline-soft bg-surface px-4"
             onPress={() => setFilterExpanded((expanded) => !expanded)}
           >
             <AppText variant="label">{measurementLabel(selectedFilter)}</AppText>
             <MaterialCommunityIcons
               name={filterExpanded ? "chevron-up" : "chevron-down"}
               size={20}
-              color={colors.berry}
+              color={palette.berry}
             />
           </PressableScale>
           {filterExpanded ? (
             <BottomSheetScrollView
               style={styles.filterList}
-              className="mt-2 rounded-2xl border border-outline-soft bg-white"
+              className="mt-2 rounded-2xl border border-outline-soft bg-surface"
               nestedScrollEnabled
             >
               {types.map((option) => (
@@ -142,7 +144,7 @@ export default function MeasurementEntries({ values }: { values: MeasurementEntr
                     {measurementLabel(option)}
                   </AppText>
                   {selectedFilter === option ? (
-                    <MaterialCommunityIcons name="check" size={18} color={colors.berry} />
+                    <MaterialCommunityIcons name="check" size={18} color={palette.berry} />
                   ) : null}
                 </PressableScale>
               ))}

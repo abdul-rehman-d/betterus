@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import Animated, { FadeInDown, useReducedMotion } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import useAppColors from "@/hooks/use-app-colors";
 import useNetworkStatus from "@/hooks/use-network-status";
 import { colors } from "@/lib/constants";
 import AppText from "./app-text";
@@ -28,10 +29,14 @@ export default function AppScreen({
 }: Props) {
   const { isOffline } = useNetworkStatus();
   const reduceMotion = useReducedMotion();
+  const palette = useAppColors();
   const body = (
     <>
       {isOffline ? (
-        <View className="flex-row items-center rounded-2xl border border-outline-soft bg-white px-4 py-3">
+        <View
+          className="flex-row items-center rounded-2xl border border-outline-soft px-4 py-3"
+          style={{ backgroundColor: palette.white }}
+        >
           <View className="mr-3 h-2.5 w-2.5 rounded-full bg-gold" />
           <AppText className="flex-1">
             You’re offline. Saved data stays visible; edits need a connection.
@@ -71,14 +76,28 @@ export default function AppScreen({
     );
   if (inSheet) return content;
   return (
-    <SafeAreaView className={`flex-1 bg-blush ${className ?? ""}`} edges={["top", "left", "right"]}>
+    <SafeAreaView
+      className={`flex-1 ${className ?? ""}`}
+      style={{ backgroundColor: palette.background }}
+      edges={["top", "left", "right"]}
+    >
       <LinearGradient
-        colors={[colors.background, colors.backgroundDeep, colors.background]}
+        colors={[palette.background, palette.backgroundDeep, palette.background]}
         locations={[0, 0.58, 1]}
         style={StyleSheet.absoluteFill}
       />
-      <View pointerEvents="none" style={[styles.glow, styles.glowTop]} />
-      <View pointerEvents="none" style={[styles.glow, styles.glowBottom]} />
+      <View
+        pointerEvents="none"
+        style={[styles.glow, styles.glowTop, { backgroundColor: palette.petalSoft, opacity: 0.45 }]}
+      />
+      <View
+        pointerEvents="none"
+        style={[
+          styles.glow,
+          styles.glowBottom,
+          { backgroundColor: palette.petalSoft, opacity: 0.25 },
+        ]}
+      />
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -96,7 +115,7 @@ const styles = StyleSheet.create({
     width: 240,
     height: 240,
     borderRadius: 120,
-    backgroundColor: "rgba(255, 215, 228, 0.42)",
+    backgroundColor: colors.petalSoft,
   },
   glowTop: { top: -130, right: -90 },
   glowBottom: { bottom: 80, left: -170, opacity: 0.45 },

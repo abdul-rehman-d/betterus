@@ -2,7 +2,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import type { ComponentProps } from "react";
 import { View } from "react-native";
 import AppText from "@/components/ui/app-text";
-import { colors } from "@/lib/constants";
+import useAppColors from "@/hooks/use-app-colors";
 
 export default function StepIntro({
   body,
@@ -15,10 +15,11 @@ export default function StepIntro({
   icon: ComponentProps<typeof MaterialCommunityIcons>["name"];
   title: string;
 }) {
+  const palette = useAppColors();
   return (
     <View className="gap-4">
       <View className="h-[58px] w-[58px] items-center justify-center rounded-[21px] border border-petal bg-petal-soft">
-        <MaterialCommunityIcons name={icon} size={27} color={colors.berry} />
+        <MaterialCommunityIcons name={icon} size={27} color={palette.berry} />
       </View>
       <View className="gap-2">
         <AppText variant="label" className="uppercase tracking-[1.5px] text-berry">

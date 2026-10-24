@@ -3,11 +3,11 @@ import { useQuery } from "convex/react";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { View } from "react-native";
-import Animated, { FadeInDown, useReducedMotion } from "react-native-reanimated";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, { FadeInDown, useReducedMotion } from "react-native-reanimated";
 import LineChart from "@/components/progress/line-chart";
-import ProgressEntries from "@/components/progress/progress-entries";
 import MeasurementEntries from "@/components/progress/measurement-entries";
+import ProgressEntries from "@/components/progress/progress-entries";
 import WeeklyAverageEntries from "@/components/progress/weekly-average-entries";
 import AppButton from "@/components/ui/app-button";
 import AppCard from "@/components/ui/app-card";
@@ -17,7 +17,8 @@ import PressableScale from "@/components/ui/pressable-scale";
 import SegmentedControl from "@/components/ui/segmented-control";
 import { ContentLoading, EmptyState } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
-import { colors, type MeasurementKey, measurementLabel } from "@/lib/constants";
+import useAppColors from "@/hooks/use-app-colors";
+import { type MeasurementKey, measurementLabel } from "@/lib/constants";
 import {
   addDays,
   formatDate,
@@ -33,6 +34,7 @@ import { useSession } from "@/providers/session-provider";
 type Range = "7" | "30" | "90" | "365";
 type WeightView = "daily" | "weekly";
 export default function Progress() {
+  const palette = useAppColors();
   const { userId } = useSession();
   const [range, setRange] = useState<Range>("30");
   const [weightView, setWeightView] = useState<WeightView>("daily");
@@ -130,7 +132,7 @@ export default function Progress() {
             <MaterialCommunityIcons
               name="chart-timeline-variant-shimmer"
               size={15}
-              color={colors.berry}
+              color={palette.berry}
             />
           </View>
           <AppText variant="label" className="uppercase tracking-[1.5px] text-berry">
@@ -207,7 +209,7 @@ export default function Progress() {
                     onPress={() => setMeasurementsExpanded((expanded) => !expanded)}
                   >
                     <View className="h-11 w-11 items-center justify-center rounded-2xl bg-petal-soft">
-                      <MaterialCommunityIcons name="tape-measure" size={22} color={colors.berry} />
+                      <MaterialCommunityIcons name="tape-measure" size={22} color={palette.berry} />
                     </View>
                     <View className="flex-1 gap-0.5">
                       <AppText variant="subtitle">Measurements</AppText>
@@ -223,7 +225,7 @@ export default function Progress() {
                     <MaterialCommunityIcons
                       name={measurementsExpanded ? "chevron-up" : "chevron-down"}
                       size={22}
-                      color={colors.muted}
+                      color={palette.muted}
                     />
                   </PressableScale>
                   {measurementsExpanded ? (
@@ -316,6 +318,7 @@ function ChartCard({
   endDate: string;
   showEntries?: boolean;
 }) {
+  const palette = useAppColors();
   const orderedValues = [...values].sort((a, b) => a.date.localeCompare(b.date));
   const first = orderedValues[0];
   const latest = orderedValues.at(-1) ?? first;
@@ -338,7 +341,7 @@ function ChartCard({
           <MaterialCommunityIcons
             name={change > 0 ? "trending-up" : change < 0 ? "trending-down" : "minus"}
             size={16}
-            color={change > 0 ? colors.berry : colors.success}
+            color={change > 0 ? palette.berry : palette.success}
           />
           <AppText variant="label" className={change > 0 ? "text-berry" : "text-success"}>
             {change > 0 ? "+" : ""}

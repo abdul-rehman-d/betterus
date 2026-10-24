@@ -11,11 +11,12 @@ import AppText from "@/components/ui/app-text";
 import PageHeader from "@/components/ui/page-header";
 import PressableScale from "@/components/ui/pressable-scale";
 import { api } from "@/convex/_generated/api";
-import { colors } from "@/lib/constants";
+import useAppColors from "@/hooks/use-app-colors";
 import { calendarGrid, fromIsoDate, toIsoDate } from "@/lib/dates";
 import { useSession } from "@/providers/session-provider";
 
 export default function DateModal() {
+  const palette = useAppColors();
   const params = useLocalSearchParams<{ date: string }>();
   const today = toIsoDate(new Date());
   const [month, setMonth] = useState(`${(params.date || today).slice(0, 7)}-01`);
@@ -52,7 +53,10 @@ export default function DateModal() {
     <AppBottomSheet snapPoints={["78%", "94%"]} onDismiss={handleDismiss}>
       <AppScreen inSheet>
         <PageHeader close title="Change date" />
-        <View className="flex-row items-center justify-between rounded-3xl bg-white p-2">
+        <View
+          className="flex-row items-center justify-between rounded-3xl p-2"
+          style={{ backgroundColor: palette.white }}
+        >
           <AppButton
             iconOnly
             icon="chevron-left"
@@ -79,7 +83,10 @@ export default function DateModal() {
             </AppText>
           ))}
         </View>
-        <View className="flex-row flex-wrap rounded-3xl border border-outline-soft bg-white p-2">
+        <View
+          className="flex-row flex-wrap rounded-3xl border border-outline-soft p-2"
+          style={{ backgroundColor: palette.white }}
+        >
           {grid.map(({ date, inMonth }) => {
             const selected = date === params.date;
             const disabled = date > today;
@@ -100,7 +107,7 @@ export default function DateModal() {
                   </AppText>
                   {dataDates.has(date) ? (
                     <View
-                      className={`absolute bottom-1 h-1 w-1 rounded-full ${selected ? "bg-white" : "bg-berry"}`}
+                      className={`absolute bottom-1 h-1 w-1 rounded-full ${selected ? "bg-surface" : "bg-berry"}`}
                     />
                   ) : null}
                 </View>
@@ -110,7 +117,7 @@ export default function DateModal() {
         </View>
         <AppButton label="Today" icon="calendar-today" onPress={() => select(today)} />
         <View className="flex-row items-center gap-2">
-          <MaterialCommunityIcons name="circle-small" size={22} color={colors.berry} />
+          <MaterialCommunityIcons name="circle-small" size={22} color={palette.berry} />
           <AppText variant="caption">Dots mark dates with saved data.</AppText>
         </View>
       </AppScreen>

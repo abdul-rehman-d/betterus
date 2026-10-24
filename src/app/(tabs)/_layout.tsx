@@ -3,18 +3,20 @@ import * as Haptics from "expo-haptics";
 import { Tabs } from "expo-router";
 import { type ColorValue, Pressable, StyleSheet } from "react-native";
 import Animated, { useAnimatedStyle, withSpring } from "react-native-reanimated";
-import { colors, shadows } from "@/lib/constants";
+import useAppColors from "@/hooks/use-app-colors";
+import { shadows } from "@/lib/constants";
 export default function TabsLayout() {
+  const palette = useAppColors();
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.berry,
-        tabBarInactiveTintColor: colors.muted,
+        tabBarActiveTintColor: palette.berry,
+        tabBarInactiveTintColor: palette.muted,
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: "rgba(255,255,255,0.96)",
-          borderTopColor: "rgba(255,255,255,0.9)",
+          backgroundColor: palette.backgroundDeep,
+          borderTopColor: palette.outlineSoft,
           borderTopWidth: 1,
           height: 72,
           paddingTop: 7,
@@ -37,7 +39,12 @@ export default function TabsLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="calendar-today" color={color} focused={focused} />
+            <TabIcon
+              name="calendar-today"
+              color={color}
+              focused={focused}
+              palette={palette.petalSoft}
+            />
           ),
         }}
       />
@@ -46,7 +53,12 @@ export default function TabsLayout() {
         options={{
           title: "Progress",
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="chart-line" color={color} focused={focused} />
+            <TabIcon
+              name="chart-line"
+              color={color}
+              focused={focused}
+              palette={palette.petalSoft}
+            />
           ),
         }}
       />
@@ -55,7 +67,12 @@ export default function TabsLayout() {
         options={{
           title: "Profile",
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon name="account-circle-outline" color={color} focused={focused} />
+            <TabIcon
+              name="account-circle-outline"
+              color={color}
+              focused={focused}
+              palette={palette.petalSoft}
+            />
           ),
         }}
       />
@@ -67,17 +84,19 @@ function TabIcon({
   name,
   color,
   focused,
+  palette,
 }: {
   name: "calendar-today" | "chart-line" | "account-circle-outline";
   color: ColorValue;
   focused: boolean;
+  palette: string;
 }) {
   const style = useAnimatedStyle(
     () => ({
       transform: [{ scale: withSpring(focused ? 1.08 : 1, { damping: 17, stiffness: 300 }) }],
-      backgroundColor: focused ? colors.petalSoft : "transparent",
+      backgroundColor: focused ? palette : "transparent",
     }),
-    [focused],
+    [focused, palette],
   );
   return (
     <Animated.View style={[styles.icon, style]}>

@@ -1,4 +1,4 @@
-export const colors = {
+const lightColors = {
   background: "#FFF9FA",
   backgroundDeep: "#FBEFF3",
   berry: "#B51E52",
@@ -20,6 +20,34 @@ export const colors = {
   white: "#FFFFFF",
   overlay: "rgba(42, 19, 30, 0.34)",
 } as const;
+
+const darkColors = {
+  ...lightColors,
+  background: "#1D1218",
+  backgroundDeep: "#281820",
+  berry: "#F0789E",
+  berryDark: "#A6375E",
+  berryLight: "#D95F87",
+  petal: "#653044",
+  petalSoft: "#38202B",
+  plum: "#FFF1F5",
+  muted: "#D1B8C2",
+  mutedLight: "#A88D98",
+  outline: "#573745",
+  outlineSoft: "#422B35",
+  success: "#65D99A",
+  successSoft: "#20392C",
+  danger: "#FF8390",
+  dangerSoft: "#43242B",
+  gold: "#F2C06F",
+  goldSoft: "#40321F",
+  white: "#30212A",
+  overlay: "rgba(12, 7, 10, 0.68)",
+} as const;
+
+export { darkColors, lightColors };
+export type AppColors = { [K in keyof typeof lightColors]: string };
+export const colors = lightColors;
 
 export const spacing = {
   xs: 4,

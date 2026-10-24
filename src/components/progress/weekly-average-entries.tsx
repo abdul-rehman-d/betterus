@@ -9,11 +9,13 @@ import { useCallback, useMemo, useRef } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 import AppText from "@/components/ui/app-text";
 import PressableScale from "@/components/ui/pressable-scale";
+import useAppColors from "@/hooks/use-app-colors";
 import { colors, shadows } from "@/lib/constants";
 import { formatBodyMetric } from "@/lib/numbers";
 import { formatWeekSpan, type WeeklyWeightAverage } from "@/lib/weight-weekly-average";
 
 export default function WeeklyAverageEntries({ values }: { values: WeeklyWeightAverage[] }) {
+  const palette = useAppColors();
   const sheetRef = useRef<BottomSheetModal>(null);
   const entries = useMemo(() => [...values].reverse(), [values]);
   const renderBackdrop = useCallback(
@@ -32,7 +34,7 @@ export default function WeeklyAverageEntries({ values }: { values: WeeklyWeightA
     ({ item }: { item: WeeklyWeightAverage }) => (
       <View
         accessibilityLabel={`${formatWeekSpan(item.startDate, item.endDate)}, average ${formatBodyMetric(item.value)} ${item.unit}, ${item.count} contributing ${item.count === 1 ? "day" : "days"}`}
-        className="flex-row items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3.5"
+        className="flex-row items-center justify-between gap-3 rounded-2xl bg-surface px-4 py-3.5"
       >
         <View className="flex-1 gap-0.5">
           <AppText variant="label">{formatWeekSpan(item.startDate, item.endDate)}</AppText>
@@ -58,7 +60,7 @@ export default function WeeklyAverageEntries({ values }: { values: WeeklyWeightA
         className="min-h-11 flex-row items-center justify-center gap-2 rounded-full bg-petal-soft px-4"
         onPress={() => sheetRef.current?.present()}
       >
-        <MaterialCommunityIcons name="format-list-bulleted" size={18} color={colors.berry} />
+        <MaterialCommunityIcons name="format-list-bulleted" size={18} color={palette.berry} />
         <AppText variant="label" className="text-berry">
           View weekly averages · {entries.length}
         </AppText>
@@ -69,8 +71,8 @@ export default function WeeklyAverageEntries({ values }: { values: WeeklyWeightA
         snapPoints={["72%", "94%"]}
         backdropComponent={renderBackdrop}
         enableDynamicSizing={false}
-        backgroundStyle={styles.background}
-        handleIndicatorStyle={styles.handle}
+        backgroundStyle={[styles.background, { backgroundColor: palette.background }]}
+        handleIndicatorStyle={[styles.handle, { backgroundColor: palette.outline }]}
       >
         <View className="flex-row items-center justify-between px-5 pb-4 pt-1">
           <View className="gap-1">
@@ -82,9 +84,9 @@ export default function WeeklyAverageEntries({ values }: { values: WeeklyWeightA
             accessibilityLabel="Close weekly averages"
             hitSlop={12}
             onPress={() => sheetRef.current?.dismiss()}
-            className="h-10 w-10 items-center justify-center rounded-full bg-white"
+            className="h-10 w-10 items-center justify-center rounded-full bg-surface"
           >
-            <MaterialCommunityIcons name="close" size={20} color={colors.berry} />
+            <MaterialCommunityIcons name="close" size={20} color={palette.berry} />
           </Pressable>
         </View>
         <BottomSheetFlatList

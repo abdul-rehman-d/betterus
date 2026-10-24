@@ -12,14 +12,14 @@ import Svg, {
   Stop,
   Text,
 } from "react-native-svg";
+import useAppColors from "@/hooks/use-app-colors";
 import {
   buildChartGeometry,
   dateTickOffsets,
   formatChartValue,
   smoothChartPath,
 } from "@/lib/chart";
-import { colors } from "@/lib/constants";
-import { formatDate, fromIsoDate, addDays } from "@/lib/dates";
+import { addDays, formatDate, fromIsoDate } from "@/lib/dates";
 import { formatBodyMetric } from "@/lib/numbers";
 
 type ChartValue = { date: string; value: number; unit: string };
@@ -35,6 +35,7 @@ export default function LineChart({
   startDate: string;
   endDate: string;
 }) {
+  const palette = useAppColors();
   const [width, setWidth] = useState(0);
   const uniqueId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
   const height = 184;
@@ -95,9 +96,9 @@ export default function LineChart({
               x2={0}
               y2={plot.bottom}
             >
-              <Stop offset="0" stopColor={colors.berry} stopOpacity={0.24} />
-              <Stop offset="0.55" stopColor={colors.berry} stopOpacity={0.11} />
-              <Stop offset="1" stopColor={colors.berry} stopOpacity={0} />
+              <Stop offset="0" stopColor={palette.berry} stopOpacity={0.24} />
+              <Stop offset="0.55" stopColor={palette.berry} stopOpacity={0.11} />
+              <Stop offset="1" stopColor={palette.berry} stopOpacity={0} />
             </LinearGradient>
             <ClipPath id={`chartClip-${uniqueId}`}>
               <Rect
@@ -127,7 +128,7 @@ export default function LineChart({
                     x2={plot.right}
                     y1={y}
                     y2={y}
-                    stroke={colors.outline}
+                    stroke={palette.outline}
                     strokeDasharray="2 4"
                   />
                   <Text
@@ -135,7 +136,7 @@ export default function LineChart({
                     y={y + 3.5}
                     textAnchor="end"
                     fontSize={10}
-                    fill={colors.muted}
+                    fill={palette.muted}
                   >
                     {formatChartValue(tick)}
                   </Text>
@@ -152,7 +153,7 @@ export default function LineChart({
                   x2={plot.right}
                   y1={points[0].y}
                   y2={points[0].y}
-                  stroke={colors.muted}
+                  stroke={palette.muted}
                   strokeWidth={1.2}
                   strokeDasharray="2 4"
                 />
@@ -162,7 +163,7 @@ export default function LineChart({
                     x2={plot.right}
                     y1={points.at(-1)?.y}
                     y2={points.at(-1)?.y}
-                    stroke={colors.berry}
+                    stroke={palette.berry}
                     strokeWidth={1.2}
                     strokeDasharray="2 4"
                   />
@@ -174,7 +175,7 @@ export default function LineChart({
                 x2={plot.right}
                 y1={points[0].y}
                 y2={points[0].y}
-                stroke={colors.berry}
+                stroke={palette.berry}
                 strokeWidth={1.2}
                 strokeDasharray="2 4"
               />
@@ -184,7 +185,7 @@ export default function LineChart({
                 <Path
                   d={linePath}
                   fill="none"
-                  stroke={colors.berry}
+                  stroke={palette.berry}
                   strokeWidth={7}
                   strokeOpacity={0.1}
                   strokeLinecap="round"
@@ -193,7 +194,7 @@ export default function LineChart({
                 <Path
                   d={linePath}
                   fill="none"
-                  stroke={colors.berry}
+                  stroke={palette.berry}
                   strokeWidth={2.8}
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -207,8 +208,8 @@ export default function LineChart({
                   cx={point.x}
                   cy={point.y}
                   r={index === points.length - 1 ? 4.5 : 3.1}
-                  fill={colors.white}
-                  stroke={colors.berry}
+                  fill={palette.white}
+                  stroke={palette.berry}
                   strokeWidth={index === points.length - 1 ? 2.5 : 2.2}
                 />
               ) : null,
@@ -221,7 +222,7 @@ export default function LineChart({
             textAnchor="end"
             fontSize={10}
             fontWeight="600"
-            fill={colors.muted}
+            fill={palette.muted}
           >
             {formatChartValue(first.value)}
           </Text>
@@ -232,7 +233,7 @@ export default function LineChart({
               textAnchor="end"
               fontSize={10}
               fontWeight="600"
-              fill={colors.berry}
+              fill={palette.berry}
             >
               {formatChartValue(latest.value)}
             </Text>
@@ -258,7 +259,7 @@ export default function LineChart({
                   x2={position}
                   y1={plot.bottom}
                   y2={plot.bottom + 3}
-                  stroke={colors.mutedLight}
+                  stroke={palette.mutedLight}
                 />
                 <Text
                   x={position}
@@ -267,7 +268,7 @@ export default function LineChart({
                     index === 0 ? "start" : index === dateTicks.length - 1 ? "end" : "middle"
                   }
                   fontSize={9}
-                  fill={colors.muted}
+                  fill={palette.muted}
                 >
                   {label}
                 </Text>

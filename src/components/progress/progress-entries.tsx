@@ -7,11 +7,12 @@ import {
 } from "@gorhom/bottom-sheet";
 import { useCallback, useMemo, useRef } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import AppText from "@/components/ui/app-text";
+import PressableScale from "@/components/ui/pressable-scale";
+import useAppColors from "@/hooks/use-app-colors";
 import { colors, shadows } from "@/lib/constants";
 import { formatDate } from "@/lib/dates";
 import { formatBodyMetric } from "@/lib/numbers";
-import AppText from "@/components/ui/app-text";
-import PressableScale from "@/components/ui/pressable-scale";
 
 export type ProgressEntry = { date: string; value: number; unit: string };
 
@@ -23,11 +24,9 @@ export default function ProgressEntries({
   title: string;
   values: ProgressEntry[];
 }) {
+  const palette = useAppColors();
   const sheetRef = useRef<BottomSheetModal>(null);
-  const entries = useMemo(
-    () => [...values].sort((a, b) => b.date.localeCompare(a.date)),
-    [values],
-  );
+  const entries = useMemo(() => [...values].sort((a, b) => b.date.localeCompare(a.date)), [values]);
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
       <BottomSheetBackdrop
@@ -42,7 +41,7 @@ export default function ProgressEntries({
   );
   const renderEntry = useCallback(
     ({ item }: { item: ProgressEntry }) => (
-      <View className="flex-row items-center justify-between rounded-2xl bg-white px-4 py-3.5">
+      <View className="flex-row items-center justify-between rounded-2xl bg-surface px-4 py-3.5">
         <View className="flex-1 gap-0.5">
           <AppText variant="label">{formatDate(item.date)}</AppText>
           <AppText variant="caption">Recorded</AppText>
@@ -65,7 +64,7 @@ export default function ProgressEntries({
         className="min-h-11 flex-row items-center justify-center gap-2 rounded-full bg-petal-soft px-4"
         onPress={() => sheetRef.current?.present()}
       >
-        <MaterialCommunityIcons name="format-list-bulleted" size={18} color={colors.berry} />
+        <MaterialCommunityIcons name="format-list-bulleted" size={18} color={palette.berry} />
         <AppText variant="label" className="text-berry">
           View entries · {entries.length}
         </AppText>
@@ -76,8 +75,8 @@ export default function ProgressEntries({
         snapPoints={["72%", "94%"]}
         backdropComponent={renderBackdrop}
         enableDynamicSizing={false}
-        backgroundStyle={styles.background}
-        handleIndicatorStyle={styles.handle}
+        backgroundStyle={[styles.background, { backgroundColor: palette.background }]}
+        handleIndicatorStyle={[styles.handle, { backgroundColor: palette.outline }]}
       >
         <View className="flex-row items-center justify-between px-5 pb-4 pt-1">
           <View className="gap-1">
@@ -89,9 +88,9 @@ export default function ProgressEntries({
             accessibilityLabel="Close entries"
             hitSlop={12}
             onPress={() => sheetRef.current?.dismiss()}
-            className="h-10 w-10 items-center justify-center rounded-full bg-white"
+            className="h-10 w-10 items-center justify-center rounded-full bg-surface"
           >
-            <MaterialCommunityIcons name="close" size={20} color={colors.berry} />
+            <MaterialCommunityIcons name="close" size={20} color={palette.berry} />
           </Pressable>
         </View>
         {entries.length ? (
@@ -104,10 +103,12 @@ export default function ProgressEntries({
             showsVerticalScrollIndicator={false}
           />
         ) : (
-          <View className="mx-5 items-center gap-2 rounded-3xl bg-white px-6 py-10">
-            <MaterialCommunityIcons name="calendar-blank-outline" size={30} color={colors.berry} />
+          <View className="mx-5 items-center gap-2 rounded-3xl bg-surface px-6 py-10">
+            <MaterialCommunityIcons name="calendar-blank-outline" size={30} color={palette.berry} />
             <AppText variant="label">No entries in this period</AppText>
-            <AppText className="text-center">Recorded values will appear here with their dates.</AppText>
+            <AppText className="text-center">
+              Recorded values will appear here with their dates.
+            </AppText>
           </View>
         )}
       </BottomSheetModal>
