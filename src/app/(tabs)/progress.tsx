@@ -195,7 +195,6 @@ export default function Progress() {
                   values={series.weight}
                   startDate={startDate}
                   endDate={endDate}
-                  maxGapDays={1.5}
                 />
               ) : null}
               {!loading ? (
@@ -246,7 +245,6 @@ export default function Progress() {
                               values={values}
                               startDate={startDate}
                               endDate={endDate}
-                              maxGapDays={9}
                               showEntries={false}
                             />
                           ))}
@@ -310,14 +308,12 @@ function ChartCard({
   values,
   startDate,
   endDate,
-  maxGapDays,
   showEntries = true,
 }: {
   title: string;
   values: Array<{ date: string; value: number; unit: string }>;
   startDate: string;
   endDate: string;
-  maxGapDays: number;
   showEntries?: boolean;
 }) {
   const orderedValues = [...values].sort((a, b) => a.date.localeCompare(b.date));
@@ -350,18 +346,12 @@ function ChartCard({
           </AppText>
         </View>
       </View>
-      <LineChart
-        title={title}
-        values={orderedValues}
-        startDate={startDate}
-        endDate={endDate}
-        maxGapDays={maxGapDays}
-      />
+      <LineChart title={title} values={orderedValues} startDate={startDate} endDate={endDate} />
       {showEntries ? <ProgressEntries title={title} values={orderedValues} /> : null}
       <AppText variant="caption">
         {values.length === 1
           ? "One entry in this range"
-          : `${values.length} entries · missing dates are left as gaps`}
+          : `${values.length} entries · line connects recorded dates`}
       </AppText>
     </AppCard>
   );
@@ -403,10 +393,9 @@ function WeeklyAverageCard({
         values={values}
         startDate={startDate}
         endDate={endDate}
-        maxGapDays={9}
       />
       <AppText variant="caption">
-        Monday–Sunday weeks · {values.length} with readings · missing weeks appear as gaps
+        Monday–Sunday weeks · {values.length} with readings · line connects recorded weeks
       </AppText>
       <WeeklyAverageEntries values={values} />
     </AppCard>

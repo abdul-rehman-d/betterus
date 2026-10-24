@@ -12,7 +12,12 @@ import Svg, {
   Stop,
   Text,
 } from "react-native-svg";
-import { buildChartGeometry, dateTickOffsets, formatChartValue } from "@/lib/chart";
+import {
+  buildChartGeometry,
+  dateTickOffsets,
+  formatChartValue,
+  smoothChartPath,
+} from "@/lib/chart";
 import { colors } from "@/lib/constants";
 import { formatDate, fromIsoDate, addDays } from "@/lib/dates";
 import { formatBodyMetric } from "@/lib/numbers";
@@ -24,13 +29,11 @@ export default function LineChart({
   values,
   startDate,
   endDate,
-  maxGapDays,
 }: {
   title: string;
   values: ChartValue[];
   startDate: string;
   endDate: string;
-  maxGapDays: number;
 }) {
   const [width, setWidth] = useState(0);
   const uniqueId = useId().replace(/[^a-zA-Z0-9_-]/g, "");
@@ -41,18 +44,22 @@ export default function LineChart({
   const bottom = 35;
   if (!values.length) return null;
   const orderedValues = [...values].sort((a, b) => a.date.localeCompare(b.date));
-  const { points, segments, yTicks, plot } = buildChartGeometry(orderedValues, width, height, {
+  const { points, yTicks, plot } = buildChartGeometry(orderedValues, width, height, {
     startDate,
     endDate,
     left,
     right,
     top,
     bottom,
-    maxGapDays,
   });
   const first = orderedValues[0];
   const latest = orderedValues.at(-1) ?? first;
   const latestPoint = points.at(-1);
+  const linePath = smoothChartPath(points);
+  const areaPath =
+    points.length > 1
+      ? `${linePath} L ${points.at(-1)?.x},${plot.bottom} L ${points[0].x},${plot.bottom} Z`
+      : "";
   const labelsClose =
     latestPoint && Math.abs(latest.value - first.value) > 0.000001
       ? Math.abs(latestPoint.y - points[0].y) < 16
@@ -80,9 +87,17 @@ export default function LineChart({
       {width > left + right ? (
         <Svg width={width} height={height}>
           <Defs>
-            <LinearGradient id={`chartFill-${uniqueId}`} x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor={colors.berry} stopOpacity={0.23} />
-              <Stop offset="1" stopColor={colors.berry} stopOpacity={0.015} />
+            <LinearGradient
+              id={`chartFill-${uniqueId}`}
+              gradientUnits="userSpaceOnUse"
+              x1={0}
+              y1={plot.top}
+              x2={0}
+              y2={plot.bottom}
+            >
+              <Stop offset="0" stopColor={colors.berry} stopOpacity={0.24} />
+              <Stop offset="0.55" stopColor={colors.berry} stopOpacity={0.11} />
+              <Stop offset="1" stopColor={colors.berry} stopOpacity={0} />
             </LinearGradient>
             <ClipPath id={`chartClip-${uniqueId}`}>
               <Rect
@@ -129,20 +144,7 @@ export default function LineChart({
             })}
 
           <G clipPath={`url(#chartClip-${uniqueId})`}>
-            {segments.map((segment) => {
-              if (segment.length < 2) return null;
-              const linePath = segment
-                .map((point, pointIndex) => `${pointIndex ? "L" : "M"}${point.x},${point.y}`)
-                .join(" ");
-              const areaPath = `${linePath} L ${segment.at(-1)?.x},${plot.bottom} L ${segment[0].x},${plot.bottom} Z`;
-              return (
-                <Path
-                  key={`area-${segment[0].date}`}
-                  d={areaPath}
-                  fill={`url(#chartFill-${uniqueId})`}
-                />
-              );
-            })}
+            {points.length > 1 ? <Path d={areaPath} fill={`url(#chartFill-${uniqueId})`} /> : null}
             {points.length > 1 ? (
               <>
                 <Line
@@ -177,32 +179,40 @@ export default function LineChart({
                 strokeDasharray="2 4"
               />
             )}
-            {segments.map((segment) =>
-              segment.length > 1 ? (
+            {points.length > 1 ? (
+              <>
                 <Path
-                  key={`line-${segment[0].date}`}
-                  d={segment
-                    .map((point, pointIndex) => `${pointIndex ? "L" : "M"}${point.x},${point.y}`)
-                    .join(" ")}
+                  d={linePath}
                   fill="none"
                   stroke={colors.berry}
-                  strokeWidth={2.5}
+                  strokeWidth={7}
+                  strokeOpacity={0.1}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
+                <Path
+                  d={linePath}
+                  fill="none"
+                  stroke={colors.berry}
+                  strokeWidth={2.8}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </>
+            ) : null}
+            {points.map((point, index) =>
+              points.length <= 32 || index === 0 || index === points.length - 1 ? (
+                <Circle
+                  key={point.date}
+                  cx={point.x}
+                  cy={point.y}
+                  r={index === points.length - 1 ? 4.5 : 3.1}
+                  fill={colors.white}
+                  stroke={colors.berry}
+                  strokeWidth={index === points.length - 1 ? 2.5 : 2.2}
+                />
               ) : null,
             )}
-            {points.map((point, index) => (
-              <Circle
-                key={point.date}
-                cx={point.x}
-                cy={point.y}
-                r={index === points.length - 1 ? 5 : 3.5}
-                fill={colors.white}
-                stroke={colors.berry}
-                strokeWidth={2.5}
-              />
-            ))}
           </G>
 
           <Text
@@ -228,10 +238,19 @@ export default function LineChart({
             </Text>
           ) : null}
           {dateTicks.map(({ date, position }, index) => {
-            const label = new Intl.DateTimeFormat(undefined, {
-              month: "short",
-              ...(dayCount > 90 ? { year: "numeric" as const } : { day: "numeric" as const }),
-            }).format(fromIsoDate(date));
+            const label =
+              dayCount > 90
+                ? new Intl.DateTimeFormat(undefined, {
+                    month: "short",
+                    ...(index === 0 ||
+                    index === dateTicks.length - 1 ||
+                    date.slice(0, 4) !== dateTicks[index - 1].date.slice(0, 4)
+                      ? { year: "2-digit" as const }
+                      : {}),
+                  }).format(fromIsoDate(date))
+                : new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(
+                    fromIsoDate(date),
+                  );
             return (
               <Fragment key={date}>
                 <Line

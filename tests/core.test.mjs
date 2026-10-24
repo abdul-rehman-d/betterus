@@ -10,7 +10,7 @@ import {
   roundDisplay,
   todayInTimeZone,
 } from "../convex/lib.ts";
-import { buildChartGeometry, dateTickOffsets } from "../src/lib/chart.ts";
+import { buildChartGeometry, dateTickOffsets, smoothChartPath } from "../src/lib/chart.ts";
 import { calendarGrid, isSunday, startOfWeekRange } from "../src/lib/dates.ts";
 import { formatBodyMetric, roundBodyMetric } from "../src/lib/numbers.ts";
 import { buildWeeklyWeightAverages } from "../src/lib/weight-weekly-average.ts";
@@ -85,6 +85,28 @@ test("chart geometry handles empty, single, and gapped series", () => {
   );
   assert.equal(gapped.segments.length, 2);
   assert.ok(gapped.points[0].x < gapped.points[1].x);
+  assert.equal((smoothChartPath(gapped.points).match(/C/g) ?? []).length, 1);
+});
+
+test("chart curves stay within each pair of readings", () => {
+  const points = [
+    { date: "2026-10-01", value: 72, x: 0, y: 30 },
+    { date: "2026-10-02", value: 74, x: 12, y: 10 },
+    { date: "2026-10-03", value: 73, x: 30, y: 20 },
+    { date: "2026-10-04", value: 75, x: 60, y: 0 },
+  ];
+  const path = smoothChartPath(points);
+  const curves = [...path.matchAll(/C([\d.-]+),([\d.-]+) ([\d.-]+),([\d.-]+) ([\d.-]+),([\d.-]+)/g)];
+  assert.equal(curves.length, points.length - 1);
+  for (const [index, curve] of curves.entries()) {
+    const start = points[index].y;
+    const end = points[index + 1].y;
+    const control1 = Number(curve[2]);
+    const control2 = Number(curve[4]);
+    for (const y of [control1, control2]) {
+      assert.ok(y >= Math.min(start, end) && y <= Math.max(start, end));
+    }
+  }
 });
 
 test("date ticks span the selected range, including long ranges", () => {
