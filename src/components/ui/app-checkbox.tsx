@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import type { PressableProps } from "react-native";
+import useAppColors from "@/hooks/use-app-colors";
 import PressableScale from "./pressable-scale";
 
 type AppCheckboxProps = Omit<PressableProps, "onPress"> & {
@@ -14,6 +15,7 @@ export default function AppCheckbox({
   value,
   ...props
 }: AppCheckboxProps) {
+  const palette = useAppColors();
   return (
     <PressableScale
       accessibilityRole="checkbox"
@@ -28,7 +30,7 @@ export default function AppCheckbox({
       <Ionicons
         name={value ? "checkbox" : "square-outline"}
         size={26}
-        color={disabled ? "#a8a29e" : "#1c1917"}
+        color={disabled ? palette.mutedLight : palette.plum}
       />
     </PressableScale>
   );

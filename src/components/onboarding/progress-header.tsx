@@ -4,17 +4,18 @@ import { View } from "react-native";
 import Animated, { LinearTransition } from "react-native-reanimated";
 import AppText from "@/components/ui/app-text";
 import PressableScale from "@/components/ui/pressable-scale";
-import { colors } from "@/lib/constants";
+import useAppColors from "@/hooks/use-app-colors";
 export default function ProgressHeader({ step }: { step: number }) {
+  const palette = useAppColors();
   return (
     <View className="mb-4 flex-row items-center gap-4">
       {step > 1 ? (
         <PressableScale
           accessibilityLabel="Go back"
-          className="h-12 w-12 items-center justify-center rounded-full border border-outline-soft bg-white"
+          className="h-12 w-12 items-center justify-center rounded-full border border-outline-soft bg-surface"
           onPress={() => router.back()}
         >
-          <MaterialCommunityIcons name="arrow-left" size={25} color={colors.plum} />
+          <MaterialCommunityIcons name="arrow-left" size={25} color={palette.plum} />
         </PressableScale>
       ) : null}
       <View className="flex-1 flex-row gap-2">

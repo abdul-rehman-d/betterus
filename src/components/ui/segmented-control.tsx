@@ -5,7 +5,8 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
-import { colors, shadows } from "@/lib/constants";
+import useAppColors from "@/hooks/use-app-colors";
+import { shadows } from "@/lib/constants";
 import PressableScale from "./pressable-scale";
 
 type Props<T extends string> = {
@@ -14,13 +15,15 @@ type Props<T extends string> = {
   onChange: (value: T) => void;
 };
 export default function SegmentedControl<T extends string>({ options, value, onChange }: Props<T>) {
+  const palette = useAppColors();
   return (
-    <View className="flex-row rounded-full border border-outline-soft bg-white/70 p-1.5">
+    <View className="flex-row rounded-full border border-outline-soft bg-surface/70 p-1.5">
       {options.map((option) => (
         <SegmentOption
           key={option.value}
           label={option.label}
           selected={option.value === value}
+          palette={palette}
           onPress={() => onChange(option.value)}
         />
       ))}
@@ -31,28 +34,30 @@ export default function SegmentedControl<T extends string>({ options, value, onC
 function SegmentOption({
   label,
   selected,
+  palette,
   onPress,
 }: {
   label: string;
   selected: boolean;
+  palette: ReturnType<typeof useAppColors>;
   onPress: () => void;
 }) {
   const animatedStyle = useAnimatedStyle(
     () => ({
-      backgroundColor: withTiming(selected ? colors.berry : "rgba(255,255,255,0)", {
+      backgroundColor: withTiming(selected ? palette.berry : "rgba(255,255,255,0)", {
         duration: 180,
       }),
       transform: [{ scale: withSpring(selected ? 1 : 0.98, { damping: 18, stiffness: 300 }) }],
     }),
-    [selected],
+    [selected, palette.berry],
   );
   const textStyle = useAnimatedStyle(
     () => ({
-      color: withTiming(interpolateColor(selected ? 1 : 0, [0, 1], [colors.plum, colors.white]), {
+      color: withTiming(interpolateColor(selected ? 1 : 0, [0, 1], [palette.plum, "#FFFFFF"]), {
         duration: 160,
       }),
     }),
-    [selected],
+    [selected, palette.plum],
   );
   return (
     <PressableScale

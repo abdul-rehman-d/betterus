@@ -7,13 +7,18 @@ import AppButton from "@/components/ui/app-button";
 import AppCard from "@/components/ui/app-card";
 import AppScreen from "@/components/ui/app-screen";
 import AppText from "@/components/ui/app-text";
+import PressableScale from "@/components/ui/pressable-scale";
 import { ContentLoading } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
+import useAppColors from "@/hooks/use-app-colors";
 import { colors, genders, measurementLabel } from "@/lib/constants";
 import { initials } from "@/lib/dates";
 import { useSession } from "@/providers/session-provider";
+import { type ThemeMode, useTheme } from "@/providers/theme-provider";
 
 export default function Profile() {
+  const palette = useAppColors();
+  const theme = useTheme();
   const { clearUserId, userId } = useSession();
   const user = useQuery(api.users.get, userId ? { userId } : "skip");
   const gender = user ? genders.find((item) => item.value === user.gender)?.label : undefined;
@@ -29,10 +34,13 @@ export default function Profile() {
       {user ? (
         <View className="gap-6">
           <AppCard flush className="overflow-hidden">
-            <LinearGradient colors={["#FFFFFF", "#FFF0F5"]} style={{ gap: 20, padding: 20 }}>
+            <LinearGradient
+              colors={[palette.white, palette.backgroundDeep]}
+              style={{ gap: 20, padding: 20 }}
+            >
               <View className="flex-row items-center gap-4">
                 <LinearGradient
-                  colors={[colors.berryLight, colors.berryDark]}
+                  colors={[palette.berryLight, palette.berryDark]}
                   style={{
                     height: 80,
                     width: 80,
@@ -45,7 +53,10 @@ export default function Profile() {
                     {initials(user.name)}
                   </AppText>
                 </LinearGradient>
-                <View className="absolute left-[72px] top-[60px] h-6 w-6 items-center justify-center rounded-full border-2 border-white bg-success">
+                <View
+                  className="absolute left-[72px] top-[60px] h-6 w-6 items-center justify-center rounded-full border-2 bg-success"
+                  style={{ borderColor: palette.white }}
+                >
                   <MaterialCommunityIcons name="check" size={13} color={colors.white} />
                 </View>
                 <View className="flex-1">
@@ -67,7 +78,55 @@ export default function Profile() {
           <AppCard className="gap-4">
             <View className="flex-row items-center gap-4">
               <View className="h-12 w-12 items-center justify-center rounded-2xl bg-petal-soft">
-                <MaterialCommunityIcons name="scale-bathroom" size={25} color={colors.berry} />
+                <MaterialCommunityIcons name="theme-light-dark" size={24} color={palette.berry} />
+              </View>
+              <View className="flex-1">
+                <AppText variant="subtitle">Appearance</AppText>
+                <AppText>Choose how BetterYou looks</AppText>
+              </View>
+            </View>
+            <View
+              className="flex-row gap-2 rounded-full p-1"
+              style={{ backgroundColor: palette.backgroundDeep }}
+            >
+              {(
+                [
+                  ["system", "System", "theme-light-dark"],
+                  ["light", "Light", "white-balance-sunny"],
+                  ["dark", "Dark", "moon-waning-crescent"],
+                ] as const
+              ).map(([mode, label, icon]) => {
+                const selected = theme.mode === mode;
+                return (
+                  <PressableScale
+                    key={mode}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    className="min-h-11 flex-1 flex-row items-center justify-center gap-1 rounded-full px-2"
+                    haptic="selection"
+                    onPress={() => theme.setMode(mode as ThemeMode)}
+                    style={selected ? { backgroundColor: palette.berry } : undefined}
+                  >
+                    <MaterialCommunityIcons
+                      name={icon}
+                      size={16}
+                      color={selected ? "#FFFFFF" : palette.muted}
+                    />
+                    <AppText
+                      variant="label"
+                      style={{ color: selected ? "#FFFFFF" : palette.muted }}
+                    >
+                      {label}
+                    </AppText>
+                  </PressableScale>
+                );
+              })}
+            </View>
+          </AppCard>
+          <AppCard className="gap-4">
+            <View className="flex-row items-center gap-4">
+              <View className="h-12 w-12 items-center justify-center rounded-2xl bg-petal-soft">
+                <MaterialCommunityIcons name="scale-bathroom" size={25} color={palette.berry} />
               </View>
               <View className="flex-1">
                 <AppText variant="subtitle">Units</AppText>
@@ -86,7 +145,7 @@ export default function Profile() {
           <AppCard className="gap-4">
             <View className="flex-row items-center gap-4">
               <View className="h-12 w-12 items-center justify-center rounded-2xl bg-petal-soft">
-                <MaterialCommunityIcons name="tape-measure" size={25} color={colors.berry} />
+                <MaterialCommunityIcons name="tape-measure" size={25} color={palette.berry} />
               </View>
               <View className="flex-1">
                 <AppText variant="subtitle">Tracked measurements</AppText>

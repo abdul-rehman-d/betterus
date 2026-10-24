@@ -17,6 +17,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { api } from "@/convex/_generated/api";
 import { colors } from "@/lib/constants";
 import { SessionProvider, useSession } from "@/providers/session-provider";
+import { ThemeProvider, useTheme } from "@/providers/theme-provider";
 
 void SplashScreen.preventAutoHideAsync();
 const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
@@ -40,19 +41,30 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ConvexProvider client={convex}>
-          <SessionProvider onReady={finishStartup}>
-            <BottomSheetModalProvider>
-              <StatusBar style="dark" />
-              <AppNavigator />
-            </BottomSheetModalProvider>
-          </SessionProvider>
+          <ThemeProvider>
+            <SessionProvider onReady={finishStartup}>
+              <BottomSheetModalProvider>
+                <ThemedApp />
+              </BottomSheetModalProvider>
+            </SessionProvider>
+          </ThemeProvider>
         </ConvexProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
 }
 
-function AppNavigator() {
+function ThemedApp() {
+  const { isDark } = useTheme();
+  return (
+    <>
+      <StatusBar style={isDark ? "light" : "dark"} />
+      <AppNavigator isDark={isDark} />
+    </>
+  );
+}
+
+function AppNavigator({ isDark }: { isDark: boolean }) {
   const session = useSession();
   const user = useQuery(api.users.get, session.userId ? { userId: session.userId } : "skip");
   const canOnboard = !session.userId || user === null;
@@ -66,7 +78,7 @@ function AppNavigator() {
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: colors.background },
+        contentStyle: { backgroundColor: isDark ? "#1D1218" : colors.background },
       }}
     >
       <Stack.Screen name="index" />

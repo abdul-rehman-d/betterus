@@ -1,9 +1,9 @@
 import { useQuery } from "convex/react";
 import { Redirect } from "expo-router";
 import { useEffect } from "react";
+import { LoadingState } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
 import { useSession } from "@/providers/session-provider";
-import { LoadingState } from "@/components/ui/states";
 
 export default function Index() {
   const session = useSession();

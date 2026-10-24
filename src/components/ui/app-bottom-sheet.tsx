@@ -9,6 +9,7 @@ import type { PropsWithChildren } from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Keyboard, Platform, StyleSheet, View } from "react-native";
 import { FullWindowOverlay } from "react-native-screens";
+import useAppColors from "@/hooks/use-app-colors";
 import { colors, shadows } from "@/lib/constants";
 
 type Props = PropsWithChildren<{
@@ -29,6 +30,7 @@ export default function AppBottomSheet({
   enablePanDownToClose = true,
   enableContentPanningGesture = true,
 }: Props) {
+  const palette = useAppColors();
   const sheetRef = useRef<BottomSheetModal>(null);
   const points = useMemo(() => [...snapPoints], [snapPoints]);
   const handleDismiss = useCallback(() => {
@@ -67,8 +69,8 @@ export default function AppBottomSheet({
         keyboardBehavior="extend"
         keyboardBlurBehavior="restore"
         android_keyboardInputMode="adjustPan"
-        backgroundStyle={styles.background}
-        handleIndicatorStyle={styles.handle}
+        backgroundStyle={[styles.background, { backgroundColor: palette.background }]}
+        handleIndicatorStyle={[styles.handle, { backgroundColor: palette.outline }]}
         onDismiss={handleDismiss}
       >
         <BottomSheetScrollView

@@ -12,12 +12,14 @@ import AppText from "@/components/ui/app-text";
 import PressableScale from "@/components/ui/pressable-scale";
 import { ContentLoading } from "@/components/ui/states";
 import { api } from "@/convex/_generated/api";
-import { colors, measurementLabel } from "@/lib/constants";
+import useAppColors from "@/hooks/use-app-colors";
+import { measurementLabel } from "@/lib/constants";
 import { addDays, formatDate, sundayOfWeek, toIsoDate } from "@/lib/dates";
 import { formatBodyMetric } from "@/lib/numbers";
 import { useSession } from "@/providers/session-provider";
 
 export default function Home() {
+  const palette = useAppColors();
   const { userId } = useSession();
   const params = useLocalSearchParams<{ date?: string }>();
   const today = toIsoDate(new Date());
@@ -57,7 +59,7 @@ export default function Home() {
       <View className="gap-2">
         <View className="flex-row items-center gap-2">
           <View className="h-7 w-7 items-center justify-center rounded-full bg-petal-soft">
-            <MaterialCommunityIcons name="heart-pulse" size={15} color={colors.berry} />
+            <MaterialCommunityIcons name="heart-pulse" size={15} color={palette.berry} />
           </View>
           <AppText variant="label" className="uppercase tracking-[1.5px] text-berry">
             Daily wellness
@@ -67,12 +69,13 @@ export default function Home() {
         <AppText className="max-w-[310px]">Your body log, one honest entry at a time.</AppText>
       </View>
       <PressableScale
-        className="flex-row items-center rounded-3xl border border-white bg-white px-5 py-4"
+        className="flex-row items-center rounded-3xl border px-5 py-4"
+        style={{ backgroundColor: palette.white, borderColor: palette.outlineSoft }}
         haptic="selection"
         onPress={() => router.push({ pathname: "/(modals)/date", params: { date: selectedDate } })}
       >
         <View className="mr-4 h-12 w-12 items-center justify-center rounded-2xl bg-petal-soft">
-          <MaterialCommunityIcons name="calendar-blank-outline" size={23} color={colors.berry} />
+          <MaterialCommunityIcons name="calendar-blank-outline" size={23} color={palette.berry} />
         </View>
         <View className="flex-1">
           <AppText variant="caption" className="uppercase tracking-[1.2px] text-berry">
@@ -82,7 +85,7 @@ export default function Home() {
             {formatDate(selectedDate, { day: "numeric", month: "long", year: "numeric" })}
           </AppText>
         </View>
-        <MaterialCommunityIcons name="chevron-down" size={22} color={colors.muted} />
+        <MaterialCommunityIcons name="chevron-down" size={22} color={palette.muted} />
       </PressableScale>
       <View className="flex-row items-center justify-between">
         <AppText variant="title">Daily log</AppText>
@@ -108,10 +111,13 @@ export default function Home() {
           {loading ? <ContentLoading label="Loading daily log" /> : null}
           {!loading ? (
             <AppCard flush className="overflow-hidden">
-              <LinearGradient colors={["#FFFFFF", "#FFF3F7"]} style={{ gap: 20, padding: 20 }}>
+              <LinearGradient
+                colors={[palette.white, palette.backgroundDeep]}
+                style={{ gap: 20, padding: 20 }}
+              >
                 <View className="flex-row items-center gap-4">
                   <View className="h-16 w-16 items-center justify-center rounded-[22px] bg-petal-soft">
-                    <MaterialCommunityIcons name="scale-bathroom" size={30} color={colors.berry} />
+                    <MaterialCommunityIcons name="scale-bathroom" size={30} color={palette.berry} />
                   </View>
                   <View className="flex-1">
                     <AppText variant="label">Weight</AppText>
@@ -139,23 +145,25 @@ export default function Home() {
             <ContentLoading label="Loading weekly measurements" />
           ) : null}
           {!loading && !weeklyLoading ? (
-            <AppCard className="gap-5 border-petal bg-petal-soft">
+            <AppCard
+              className="gap-5"
+              style={{ backgroundColor: palette.petalSoft, borderColor: palette.petal }}
+            >
               <View className="flex-row items-center gap-4">
-                <View className="h-14 w-14 items-center justify-center rounded-[20px] bg-white">
-                  <MaterialCommunityIcons name="tape-measure" size={29} color={colors.berry} />
+                <View className="h-14 w-14 items-center justify-center rounded-[20px] bg-surface">
+                  <MaterialCommunityIcons name="tape-measure" size={29} color={palette.berry} />
                 </View>
                 <View className="flex-1">
                   <AppText variant="subtitle">Weekly measurements</AppText>
                   <AppText>
-                    For the week of{" "}
-                    {formatDate(measurementDate, { day: "numeric", month: "long" })}
+                    For the week of {formatDate(measurementDate, { day: "numeric", month: "long" })}
                   </AppText>
                 </View>
               </View>
               {weeklyRecord?.measurements.length ? (
                 <View className="gap-2">
                   <PressableScale
-                    className="flex-row items-center justify-between rounded-2xl bg-white/80 px-4 py-3"
+                    className="flex-row items-center justify-between rounded-2xl bg-surface/80 px-4 py-3"
                     accessibilityRole="button"
                     accessibilityState={{ expanded: measurementsExpanded }}
                     haptic="selection"
@@ -169,11 +177,11 @@ export default function Home() {
                     <MaterialCommunityIcons
                       name={measurementsExpanded ? "chevron-up" : "chevron-down"}
                       size={22}
-                      color={colors.berry}
+                      color={palette.berry}
                     />
                   </PressableScale>
                   {measurementsExpanded ? (
-                    <View className="gap-1 rounded-2xl bg-white/80 p-4">
+                    <View className="gap-1 rounded-2xl bg-surface/80 p-4">
                       {weeklyRecord.measurements.map((measurement) => (
                         <View
                           key={measurement.key}
@@ -204,7 +212,7 @@ export default function Home() {
         </View>
       </GestureDetector>
       <View className="flex-row items-center justify-center gap-2 py-2">
-        <MaterialCommunityIcons name="gesture-swipe-right" size={18} color={colors.muted} />
+        <MaterialCommunityIcons name="gesture-swipe-right" size={18} color={palette.muted} />
         <AppText variant="caption">Swipe right to see the previous day</AppText>
       </View>
     </AppScreen>

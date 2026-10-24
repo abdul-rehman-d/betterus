@@ -1,6 +1,7 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import type { ComponentProps } from "react";
 import { ActivityIndicator, type PressableProps, StyleSheet, Text } from "react-native";
+import useAppColors from "@/hooks/use-app-colors";
 import useNetworkStatus from "@/hooks/use-network-status";
 import { colors, shadows } from "@/lib/constants";
 import PressableScale from "./pressable-scale";
@@ -27,19 +28,25 @@ export default function AppButton({
   ...props
 }: Props) {
   const { isOffline } = useNetworkStatus();
+  const palette = useAppColors();
   const isDisabled = disabled || loading || (requiresNetwork && isOffline);
   const primary = variant === "primary";
   const destructive = variant === "destructive";
-  const foreground = primary ? colors.white : destructive ? colors.danger : colors.berry;
+  const foreground = primary ? "#FFFFFF" : destructive ? palette.danger : palette.berry;
   return (
     <PressableScale
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled, busy: loading }}
-      className={`min-h-[52px] flex-row items-center justify-center gap-2 rounded-full border px-5 ${primary ? "border-berry bg-berry" : variant === "secondary" ? "border-outline-soft bg-white" : destructive ? "border-danger/10 bg-danger-soft" : "border-transparent bg-transparent"} ${iconOnly ? "w-[52px] px-0" : ""} ${isDisabled ? "opacity-40" : ""} ${className ?? ""}`}
+      className={`min-h-[52px] flex-row items-center justify-center gap-2 rounded-full border px-5 ${primary ? "border-berry bg-berry" : destructive ? "border-danger/10 bg-danger-soft" : "border-transparent bg-transparent"} ${iconOnly ? "w-[52px] px-0" : ""} ${isDisabled ? "opacity-40" : ""} ${className ?? ""}`}
+      style={[
+        variant === "secondary"
+          ? { backgroundColor: palette.white, borderColor: palette.outlineSoft }
+          : undefined,
+        primary ? styles.primary : undefined,
+      ]}
       disabled={isDisabled}
       haptic={destructive ? "medium" : "light"}
-      style={primary ? styles.primary : undefined}
       {...props}
     >
       {loading ? <ActivityIndicator color={foreground} /> : null}
@@ -57,4 +64,4 @@ export default function AppButton({
   );
 }
 
-const styles = StyleSheet.create({ primary: shadows.card });
+const styles = StyleSheet.create({ primary: { ...shadows.card, shadowColor: colors.berry } });

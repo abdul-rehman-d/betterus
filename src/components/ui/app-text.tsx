@@ -1,5 +1,6 @@
 import type { PropsWithChildren } from "react";
 import { Text, type TextProps } from "react-native";
+import useAppColors from "@/hooks/use-app-colors";
 
 type Props = TextProps &
   PropsWithChildren & {
@@ -14,6 +15,14 @@ const variants = {
   caption: "font-body text-[12px] leading-[17px] text-muted",
   metric: "font-heading text-[42px] leading-[48px] tracking-[-1.5px] text-plum",
 } as const;
-export default function AppText({ className, variant = "body", ...props }: Props) {
-  return <Text className={`${variants[variant]} ${className ?? ""}`} {...props} />;
+export default function AppText({ className, variant = "body", style, ...props }: Props) {
+  const colors = useAppColors();
+  const textColor = variant === "body" || variant === "caption" ? colors.muted : colors.plum;
+  return (
+    <Text
+      className={`${variants[variant]} ${className ?? ""}`}
+      style={[{ color: textColor }, style]}
+      {...props}
+    />
+  );
 }
