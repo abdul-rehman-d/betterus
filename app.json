@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "BetterUs",
+    "name": "BetterYou",
     "slug": "betterus",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,6 +12,7 @@
     },
     "android": {
       "icon": "./assets/images/icon.png",
+      "softwareKeyboardLayoutMode": "pan",
       "adaptiveIcon": {
         "backgroundColor": "#B51E52",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -36,10 +37,7 @@
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "extra": {
       "router": {},
       "eas": {

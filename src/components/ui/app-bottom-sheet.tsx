@@ -7,23 +7,34 @@ import {
 import { router } from "expo-router";
 import type { PropsWithChildren } from "react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { StyleSheet, View } from "react-native";
+import { Keyboard, Platform, StyleSheet, View } from "react-native";
+import { FullWindowOverlay } from "react-native-screens";
 import { colors, shadows } from "@/lib/constants";
 
 type Props = PropsWithChildren<{
   onDismiss?: () => void;
   snapPoints?: readonly string[];
   enablePanDownToClose?: boolean;
+  enableContentPanningGesture?: boolean;
 }>;
+
+function SheetOverlay({ children }: PropsWithChildren) {
+  return <FullWindowOverlay>{children}</FullWindowOverlay>;
+}
 
 export default function AppBottomSheet({
   children,
   onDismiss = () => router.back(),
   snapPoints = ["72%", "94%"],
   enablePanDownToClose = true,
+  enableContentPanningGesture = true,
 }: Props) {
   const sheetRef = useRef<BottomSheetModal>(null);
   const points = useMemo(() => [...snapPoints], [snapPoints]);
+  const handleDismiss = useCallback(() => {
+    Keyboard.dismiss();
+    onDismiss();
+  }, [onDismiss]);
 
   useEffect(() => {
     sheetRef.current?.present();
@@ -48,18 +59,21 @@ export default function AppBottomSheet({
         ref={sheetRef}
         index={0}
         snapPoints={points}
+        containerComponent={Platform.OS === "ios" ? SheetOverlay : undefined}
         backdropComponent={renderBackdrop}
         enablePanDownToClose={enablePanDownToClose}
+        enableContentPanningGesture={enableContentPanningGesture}
         enableDynamicSizing={false}
-        keyboardBehavior="interactive"
+        keyboardBehavior="extend"
         keyboardBlurBehavior="restore"
-        android_keyboardInputMode="adjustResize"
+        android_keyboardInputMode="adjustPan"
         backgroundStyle={styles.background}
         handleIndicatorStyle={styles.handle}
-        onDismiss={onDismiss}
+        onDismiss={handleDismiss}
       >
         <BottomSheetScrollView
           contentContainerStyle={styles.content}
+          keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "none"}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >

@@ -1,4 +1,4 @@
-# BetterUs motion principles
+# BetterYou motion principles
 
 - **Responsive:** 120–180 ms for press feedback.
 - **Supportive:** 220–320 ms spring settling for cards and navigation.

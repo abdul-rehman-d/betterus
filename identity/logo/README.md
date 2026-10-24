@@ -1,4 +1,4 @@
-# BetterUs logo usage
+# BetterYou logo usage
 
 ## Idea
 

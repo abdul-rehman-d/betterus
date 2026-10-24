@@ -10,9 +10,10 @@ import {
   roundDisplay,
   todayInTimeZone,
 } from "../convex/lib.ts";
-import { buildChartGeometry } from "../src/lib/chart.ts";
-import { calendarGrid, isSunday } from "../src/lib/dates.ts";
+import { buildChartGeometry, dateTickOffsets, smoothChartPath } from "../src/lib/chart.ts";
+import { calendarGrid, isSunday, startOfWeekRange } from "../src/lib/dates.ts";
 import { formatBodyMetric, roundBodyMetric } from "../src/lib/numbers.ts";
+import { buildWeeklyWeightAverages } from "../src/lib/weight-weekly-average.ts";
 
 test("normalizes and validates usernames", () => {
   assert.equal(normalizeUsername("  Better_User  "), "better_user");
@@ -58,14 +59,81 @@ test("calendar grids are stable six-week ranges", () => {
 });
 
 test("chart geometry handles empty, single, and gapped series", () => {
-  assert.deepEqual(buildChartGeometry([], 300), { path: "", points: [] });
-  assert.equal(buildChartGeometry([{ date: "2026-10-11", value: 72 }], 300).points[0].x, 150);
+  const options = {
+    startDate: "2026-10-01",
+    endDate: "2026-10-11",
+    left: 54,
+    right: 12,
+    top: 14,
+    bottom: 35,
+  };
+  const empty = buildChartGeometry([], 300, 184, options);
+  assert.deepEqual(empty.points, []);
+  assert.deepEqual(empty.segments, []);
+  const single = buildChartGeometry([{ date: "2026-10-11", value: 72 }], 300, 184, options);
+  assert.equal(single.points[0].x, 283);
+  assert.ok(single.yTicks.some((tick) => tick < 72));
+  assert.ok(single.yTicks.some((tick) => tick > 72));
   const gapped = buildChartGeometry(
     [
       { date: "2026-10-01", value: 72 },
       { date: "2026-10-03", value: 71 },
     ],
     300,
+    184,
+    options,
   );
-  assert.equal(gapped.path.split("M").length - 1, 2);
+  assert.equal(gapped.segments.length, 2);
+  assert.ok(gapped.points[0].x < gapped.points[1].x);
+  assert.equal((smoothChartPath(gapped.points).match(/C/g) ?? []).length, 1);
+});
+
+test("chart curves stay within each pair of readings", () => {
+  const points = [
+    { date: "2026-10-01", value: 72, x: 0, y: 30 },
+    { date: "2026-10-02", value: 74, x: 12, y: 10 },
+    { date: "2026-10-03", value: 73, x: 30, y: 20 },
+    { date: "2026-10-04", value: 75, x: 60, y: 0 },
+  ];
+  const path = smoothChartPath(points);
+  const curves = [...path.matchAll(/C([\d.-]+),([\d.-]+) ([\d.-]+),([\d.-]+) ([\d.-]+),([\d.-]+)/g)];
+  assert.equal(curves.length, points.length - 1);
+  for (const [index, curve] of curves.entries()) {
+    const start = points[index].y;
+    const end = points[index + 1].y;
+    const control1 = Number(curve[2]);
+    const control2 = Number(curve[4]);
+    for (const y of [control1, control2]) {
+      assert.ok(y >= Math.min(start, end) && y <= Math.max(start, end));
+    }
+  }
+});
+
+test("date ticks span the selected range, including long ranges", () => {
+  assert.deepEqual(dateTickOffsets(7), [0, 3, 6]);
+  assert.equal(dateTickOffsets(30).at(-1), 29);
+  assert.equal(dateTickOffsets(1100).at(-1), 1099);
+});
+
+test("weekly weight averages use Monday–Sunday weeks and include partial weeks", () => {
+  const weeks = buildWeeklyWeightAverages(
+    [
+      { date: "2026-10-11", value: 72, unit: "kg" },
+      { date: "2026-10-05", value: 70, unit: "kg" },
+      { date: "2026-10-12", value: 75, unit: "kg" },
+    ],
+    "kg",
+  );
+  assert.deepEqual(
+    weeks.map(({ startDate, count, value }) => ({ startDate, count, value })),
+    [
+      { startDate: "2026-10-05", count: 2, value: 71 },
+      { startDate: "2026-10-12", count: 1, value: 75 },
+    ],
+  );
+});
+
+test("30-week range starts on Monday and stays within 210 days", () => {
+  assert.equal(startOfWeekRange("2026-10-19", 30), "2026-03-30");
+  assert.equal(startOfWeekRange("2026-10-25", 30), "2026-03-30");
 });

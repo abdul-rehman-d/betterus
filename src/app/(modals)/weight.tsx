@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery } from "convex/react";
 import { Redirect, router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
+import { Keyboard } from "react-native";
 import AppBottomSheet from "@/components/ui/app-bottom-sheet";
 import AppButton from "@/components/ui/app-button";
 import AppScreen from "@/components/ui/app-screen";
@@ -80,6 +81,10 @@ function WeightForm({
       setError("Could not remove weight.");
     }
   };
+  const submitWeight = () => {
+    Keyboard.dismiss();
+    void form.handleSubmit();
+  };
   return (
     <AppScreen inSheet>
       <PageHeader close title={hasWeight ? "Edit weight" : "Add weight"} />
@@ -95,9 +100,12 @@ function WeightForm({
       >
         {(field) => (
           <AppTextInput
-            autoFocus
             inSheet
             keyboardType="decimal-pad"
+            enterKeyHint="done"
+            returnKeyType="done"
+            submitBehavior="blurAndSubmit"
+            onSubmitEditing={submitWeight}
             label="Weight"
             suffix={form.getFieldValue("unit")}
             value={field.state.value}
@@ -119,7 +127,7 @@ function WeightForm({
         )}
       </form.Field>
       <InlineError message={error} />
-      <AppButton requiresNetwork label="Save weight" onPress={() => void form.handleSubmit()} />
+      <AppButton requiresNetwork label="Save weight" onPress={submitWeight} />
       {hasWeight ? (
         <AppButton
           requiresNetwork

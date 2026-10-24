@@ -48,7 +48,11 @@ export default function MeasurementsModal() {
     }),
   ) as Record<MeasurementKey, string>;
   return (
-    <AppBottomSheet snapPoints={["92%"]} enablePanDownToClose={false}>
+    <AppBottomSheet
+      snapPoints={["92%"]}
+      enablePanDownToClose={false}
+      enableContentPanningGesture={false}
+    >
       <MeasurementsForm
         userId={userId}
         date={date}
@@ -94,6 +98,9 @@ function MeasurementsForm({
     <AppScreen inSheet>
       <PageHeader close title="Sunday measurements" />
       <AppText>{formatDate(date)}</AppText>
+      <AppText variant="caption">
+        This week’s measurements are saved to Sunday, even if you’re checking in later.
+      </AppText>
       <form.Field name="unit">
         {(field) => (
           <SegmentedControl<MeasurementUnit>
