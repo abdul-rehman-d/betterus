@@ -2,6 +2,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useQuery } from "convex/react";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import AppButton from "@/components/ui/app-button";
@@ -22,6 +23,8 @@ export default function Home() {
   const today = toIsoDate(new Date());
   const selectedDate = params.date && params.date <= today ? params.date : today;
   const measurementDate = sundayOfWeek(selectedDate);
+  const [expandedMeasurementWeek, setExpandedMeasurementWeek] = useState<string | null>(null);
+  const measurementsExpanded = expandedMeasurementWeek === measurementDate;
   const moveDay = (amount: number) => {
     const nextDate = amount > 0 && selectedDate >= today ? today : addDays(selectedDate, amount);
     router.setParams({ date: nextDate });
@@ -142,30 +145,48 @@ export default function Home() {
                   <MaterialCommunityIcons name="tape-measure" size={29} color={colors.berry} />
                 </View>
                 <View className="flex-1">
-                  <AppText variant="subtitle">
-                    {weeklyRecord?.measurements.length ? "Last recorded" : "Weekly measurements"}
-                  </AppText>
+                  <AppText variant="subtitle">Weekly measurements</AppText>
                   <AppText>
-                    {weeklyRecord?.measurements.length
-                      ? formatDate(measurementDate, {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        })
-                      : `For the week of ${formatDate(measurementDate, { day: "numeric", month: "long" })}`}
+                    For the week of{" "}
+                    {formatDate(measurementDate, { day: "numeric", month: "long" })}
                   </AppText>
                 </View>
               </View>
               {weeklyRecord?.measurements.length ? (
-                <View className="gap-1 rounded-2xl bg-white/80 p-4">
-                  {weeklyRecord.measurements.map((measurement) => (
-                    <View key={measurement.key} className="flex-row items-center justify-between">
-                      <AppText>{measurementLabel(measurement.key)}</AppText>
-                      <AppText variant="label">
-                        {formatBodyMetric(measurement.value)} {measurement.unit}
-                      </AppText>
+                <View className="gap-2">
+                  <PressableScale
+                    className="flex-row items-center justify-between rounded-2xl bg-white/80 px-4 py-3"
+                    accessibilityRole="button"
+                    accessibilityState={{ expanded: measurementsExpanded }}
+                    haptic="selection"
+                    onPress={() =>
+                      setExpandedMeasurementWeek(measurementsExpanded ? null : measurementDate)
+                    }
+                  >
+                    <AppText variant="label" className="text-berry">
+                      {measurementsExpanded ? "Hide values" : "Show values"}
+                    </AppText>
+                    <MaterialCommunityIcons
+                      name={measurementsExpanded ? "chevron-up" : "chevron-down"}
+                      size={22}
+                      color={colors.berry}
+                    />
+                  </PressableScale>
+                  {measurementsExpanded ? (
+                    <View className="gap-1 rounded-2xl bg-white/80 p-4">
+                      {weeklyRecord.measurements.map((measurement) => (
+                        <View
+                          key={measurement.key}
+                          className="flex-row items-center justify-between"
+                        >
+                          <AppText>{measurementLabel(measurement.key)}</AppText>
+                          <AppText variant="label">
+                            {formatBodyMetric(measurement.value)} {measurement.unit}
+                          </AppText>
+                        </View>
+                      ))}
                     </View>
-                  ))}
+                  ) : null}
                 </View>
               ) : null}
               <AppButton
